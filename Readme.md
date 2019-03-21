@@ -1,6 +1,6 @@
 SeeBiNum - see binary number  
 2019-02-28 - Dwayne Robinson  
-Little binary number, displaying a number in various formats as binary/hex or vice versa.
+Displays a number in various formats as binary/hex or vice versa.
 
 ## Usage examples
 
