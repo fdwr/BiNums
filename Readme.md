@@ -1,5 +1,5 @@
 SeeBiNum - see binary number  
-2019-02-14..2019-03-21
+2019-02-14..2019-03-21  
 Dwayne Robinson  
 Displays a number in various formats as binary/hex or vice versa.
 
