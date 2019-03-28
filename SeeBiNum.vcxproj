@@ -164,9 +164,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FixedNumber.h" />
     <ClInclude Include="Float16m7e8s1.h" />
     <ClInclude Include="Half.h" />
     <ClInclude Include="precomp.h" />
+    <ClInclude Include="Int24.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SeeBiNum.cpp" />
