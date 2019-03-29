@@ -106,12 +106,12 @@ inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator *(
     FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
 ) noexcept
 {
+    using IntegerType = typename FixedNumber<BaseType, IntegerBitCount, FractionBitCount>::IntegerType;
+    static_assert(sizeof(IntegerType) == 4, "This is limited to 32-bit numbers. 64-bit inputs would overflow. Feel free to extend code if needed");
+
     // The product result is bigger than the base type.
     // So we need to keep full precision and then shift and truncate back down.
     int64_t result = int64_t(a.GetRawBits()) * b.GetRawBits();
-
-    using IntegerType = typename FixedNumber<BaseType, IntegerBitCount, FractionBitCount>::IntegerType;
-    static_assert(sizeof(IntegerType) == 4, "This is limited to 32-bit numbers. 64-bit inputs would overflow. Feel free to extend code if needed");
 
     a.SetRawBits(IntegerType(result >> FractionBitCount));
     return a;
@@ -123,11 +123,27 @@ inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator /(
     FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
 ) noexcept
 {
-    // Division needs to be performed on the full precision dividend.
-    int64_t result = b.GetRawBits() ? (int64_t(a.GetRawBits()) << FractionBitCount) / b.GetRawBits() : INT64_MAX;
-
     using IntegerType = typename FixedNumber<BaseType, IntegerBitCount, FractionBitCount>::IntegerType;
     static_assert(sizeof(IntegerType) == 4, "This is limited to 32-bit numbers. 64-bit inputs would overflow. Feel free to extend code if needed");
+
+    // Determine where the sign bit is to compute maximum positive and negative values (infinity essentially).
+    // This expects two's complement, which is standard for C++.
+    // Note a sign is assumed (consider supporting unsigned fixed point, based on BaseType).
+    constexpr int64_t signMask = int64_t(1) << (IntegerBitCount + FractionBitCount - 1);
+    constexpr int64_t maximumPositiveValue = signMask - 1;
+    constexpr int64_t maximumNegativeValue = signMask;
+
+    // Avoid division by zero, instead saturating to the maximum value.
+    int64_t result;
+    if (b.GetRawBits() != 0)
+    {
+        // Division needs to be performed on the full precision dividend.
+        result = (int64_t(a.GetRawBits()) << FractionBitCount) / b.GetRawBits();
+    }
+    else
+    {
+        result = (a.GetRawBits() & signMask) ? maximumNegativeValue : maximumPositiveValue;
+    }
 
     a.SetRawBits(IntegerType(result));
     return a;
