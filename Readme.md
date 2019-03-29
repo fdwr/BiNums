@@ -21,8 +21,10 @@ Displays a number in various formats as binary/hex or vice versa.
     showbinary showhex - display raw bits as binary or hex (default)
     showhexfloat showdecfloat - display float as hex or decimal (default)
     raw num - treat input as raw bit data or as number (default)
-    add subtract multiply dot - apply operation to following numbers
-    float16 bfloat16 float32 float64 uint8 uint16 uint32 uint64 int8 int16 int32 int64 - set type
+    add subtract multiply divide dot - apply operation to following numbers
+    float16 bfloat16 float32 float64 - set floating point data type
+    uint8 uint16 uint32 uint64 int8 int16 int32 int64 - set integer data type
+    fixed12_12 fixed16_16 fixed8_24 - set fixed precision data type
 
 ## Sample output
 
@@ -42,9 +44,9 @@ Display pi:
           bfloat16 3.140625 -> 0x4049
            float32 3.1415863037109375 -> 0x40490FC0
            float64 3.1415863037109375 -> 0x400921F800000000
-        fixed12.12 3.141357421875 -> 0x003243
-        fixed16.16 3.1415863037109375 -> 0x0003243F
-         fixed8.24 3.1415863037109375 -> 0x03243F00
+        fixed12_12 3.141357421875 -> 0x003243
+        fixed16_16 3.1415863037109375 -> 0x0003243F
+         fixed8_24 3.1415863037109375 -> 0x03243F00
 
     From binary:
              uint8 3 <- 0x03
@@ -59,9 +61,9 @@ Display pi:
           bfloat16 2.75506488473973634680173e-40 <- 0x0003
            float32 4.20389539297445121277119e-45 <- 0x00000003
            float64 1.48219693752373963252971e-323 <- 0x0000000000000003
-        fixed12.12 0.000732421875 <- 0x000003
-        fixed16.16 4.57763671875e-05 <- 0x00000003
-         fixed8.24 1.78813934326171875e-07 <- 0x00000003
+        fixed12_12 0.000732421875 <- 0x000003
+        fixed16_16 4.57763671875e-05 <- 0x00000003
+         fixed8_24 1.78813934326171875e-07 <- 0x00000003
 
 Value 1:
 
@@ -79,6 +81,9 @@ Value 1:
           bfloat16 1 -> 0x3F80
            float32 1 -> 0x3F800000
            float64 1 -> 0x3FF0000000000000
+        fixed12_12 1 -> 0x001000
+        fixed16_16 1 -> 0x00010000
+         fixed8_24 1 -> 0x01000000
 
     From binary:
              uint8 1 <- 0x01
@@ -93,6 +98,9 @@ Value 1:
           bfloat16 9.18355e-41 <- 0x0001
            float32 1.4013e-45 <- 0x00000001
            float64 4.94066e-324 <- 0x0000000000000001
+        fixed12_12 0.000244140625 <- 0x000001
+        fixed16_16 1.52587890625e-05 <- 0x00000001
+         fixed8_24 5.9604644775390625e-08 <- 0x00000001
 
 Display multiple values in a specific format:
 
