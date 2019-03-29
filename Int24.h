@@ -47,7 +47,9 @@ struct int24_t
     // Implicit conversion to native type.
     operator int32_t() const throw()
     {
-        return value.Get();
+        // Get the 32-bit value from 24-bits, then extend sign.
+        uint32_t integerValue = value.Get();
+        return int32_t(integerValue << 8) >> 8;
     }
 
     void Set(int32_t v) throw()

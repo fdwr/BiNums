@@ -25,7 +25,6 @@ struct FixedNumber
     // Check that the base data type uses either 32-bit or 64-bit values.
     // It's fine for them to be signed or unsigned.
     using IntegerType = decltype(BaseType{} + 1);
-    static_assert(sizeof(IntegerType) == 4 || sizeof(IntegerType) == 8, "This class can use 32-bit or 64-bit numbers.");
 
     FixedNumber() = default;
     FixedNumber(const Self&) = default;
@@ -33,7 +32,7 @@ struct FixedNumber
 
     FixedNumber(float newValue) noexcept
     {
-        SetFloatValue(newValue);
+        SetFloat(newValue);
     }
 
     static Self MakeFromRawBits(uint32_t newValue)
@@ -47,11 +46,11 @@ struct FixedNumber
 
     Self& operator =(float newValue) noexcept
     {
-        SetFloatValue(newValue);
+        SetFloat(newValue);
         return *this;
     }
 
-    IntegerType GetRawBits()
+    inline IntegerType GetRawBits()
     {
         return value;
     }
@@ -61,46 +60,263 @@ struct FixedNumber
         value = newValue;
     }
 
-    void SetFloatValue(float newValue)
+    void SetFloat(float newValue)
     {
         value = static_cast<IntegerType>(newValue * FractionMultiple);
     }
 
-    float GetFloatValue() const noexcept
+    float GetFloat() const noexcept
     {
         return static_cast<float>(IntegerType(value) * FractionInverseMultiple);
     }
 
     operator float() const noexcept
     {
-        return GetFloatValue();
+        return GetFloat();
     }
 
     BaseType value;
 };
 
-// TODO: Finish math operations on fixed-size fraction types.
-//inline float16m7e8s1_t operator +(float16m7e8s1_t a, float16m7e8s1_t b) noexcept { return float(a) + float(b); }
-//inline float16m7e8s1_t operator -(float16m7e8s1_t a, float16m7e8s1_t b) noexcept { return float(a) - float(b); }
-//inline float16m7e8s1_t operator *(float16m7e8s1_t a, float16m7e8s1_t b) noexcept { return float(a) * float(b); }
-//inline float16m7e8s1_t operator /(float16m7e8s1_t a, float16m7e8s1_t b) noexcept { return float(a) / float(b); }
-//inline float16m7e8s1_t operator +(float16m7e8s1_t a, double b) noexcept { return float(a) + float(b); }
-//inline float16m7e8s1_t operator -(float16m7e8s1_t a, double b) noexcept { return float(a) - float(b); }
-//inline float16m7e8s1_t operator *(float16m7e8s1_t a, double b) noexcept { return float(a) * float(b); }
-//inline float16m7e8s1_t operator /(float16m7e8s1_t a, double b) noexcept { return float(a) / float(b); }
-//inline float16m7e8s1_t operator +(double a, float16m7e8s1_t b) noexcept { return float(a) + float(b); }
-//inline float16m7e8s1_t operator -(double a, float16m7e8s1_t b) noexcept { return float(a) - float(b); }
-//inline float16m7e8s1_t operator *(double a, float16m7e8s1_t b) noexcept { return float(a) * float(b); }
-//inline float16m7e8s1_t operator /(double a, float16m7e8s1_t b) noexcept { return float(a) / float(b); }
-//inline float16m7e8s1_t& operator +=(float16m7e8s1_t& a, float16m7e8s1_t b) noexcept { return a = (float(a) + float(b)); }
-//inline float16m7e8s1_t& operator -=(float16m7e8s1_t& a, float16m7e8s1_t b) noexcept { return a = (float(a) - float(b)); }
-//inline float16m7e8s1_t& operator *=(float16m7e8s1_t& a, float16m7e8s1_t b) noexcept { return a = (float(a) * float(b)); }
-//inline float16m7e8s1_t& operator /=(float16m7e8s1_t& a, float16m7e8s1_t b) noexcept { return a = (float(a) / float(b)); }
-//inline float16m7e8s1_t& operator ++(float16m7e8s1_t& a) noexcept { return a = float(a) + 1; }
-//inline float16m7e8s1_t& operator --(float16m7e8s1_t& a) noexcept { return a = float(a) + 1; }
-//inline bool operator==(float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) == float(rhs); }
-//inline bool operator!=(float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) != float(rhs); }
-//inline bool operator< (float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) <  float(rhs); }
-//inline bool operator> (float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) >  float(rhs); }
-//inline bool operator<=(float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) <= float(rhs); }
-//inline bool operator>=(float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) >= float(rhs); }
+//////////////////////////////
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator +(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    a.SetRawBits(a.GetRawBits() + b.GetRawBits());
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator -(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    a.SetRawBits(a.GetRawBits() - b.GetRawBits());
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator *(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    // The product result is bigger than the base type.
+    // So we need to keep full precision and then shift and truncate back down.
+    int64_t result = int64_t(a.GetRawBits()) * b.GetRawBits();
+
+    using IntegerType = typename FixedNumber<BaseType, IntegerBitCount, FractionBitCount>::IntegerType;
+    static_assert(sizeof(IntegerType) == 4, "This is limited to 32-bit numbers. 64-bit inputs would overflow. Feel free to extend code if needed");
+
+    a.SetRawBits(IntegerType(result >> FractionBitCount));
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator /(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    // Division needs to be performed on the full precision dividend.
+    int64_t result = b.GetRawBits() ? (int64_t(a.GetRawBits()) << FractionBitCount) / b.GetRawBits() : INT64_MAX;
+
+    using IntegerType = typename FixedNumber<BaseType, IntegerBitCount, FractionBitCount>::IntegerType;
+    static_assert(sizeof(IntegerType) == 4, "This is limited to 32-bit numbers. 64-bit inputs would overflow. Feel free to extend code if needed");
+
+    a.SetRawBits(IntegerType(result));
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator +(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    double b
+) noexcept
+{
+    return a + FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(b);
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator -(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    double b
+) noexcept
+{
+    return a - FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(b);
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator *(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    double b
+    ) noexcept
+{
+    return a * FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(b);
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator /(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> a,
+    double b
+) noexcept
+{
+    return a / FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(b);
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator +(
+    double a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    return FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(a) + b;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator -(
+    double a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    return FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(a) - b;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator *(
+    double a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    return FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(a) * b;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount> operator /(
+    double a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    return FixedNumber<BaseType, IntegerBitCount, FractionBitCount>(a) / b;
+}
+
+//////////////////////////////
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& operator +=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    a.SetRawBits(a.GetRawBits() + b.GetRawBits());
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& operator -=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    a.SetRawBits(a.GetRawBits() - b.GetRawBits());
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& operator *=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+    ) noexcept
+{
+    a = a * b;
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& operator /=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& a,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> b
+) noexcept
+{
+    a = a / b;
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& operator ++(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& a
+) noexcept
+{
+    a.SetRawBits(a.GetRawBits() + 1);
+    return a;
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& operator --(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount>& a
+) noexcept
+{
+    a.SetRawBits(a.GetRawBits() - 1);
+    return a;
+}
+
+////////////////////////////////////////
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline bool operator ==(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> lhs,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> rhs
+) noexcept
+{
+    return lhs.GetRawBits() == rhs.GetRawBits();
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline bool operator !=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> lhs,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> rhs
+) noexcept
+{
+    return lhs.GetRawBits() != rhs.GetRawBits();
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline bool operator <(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> lhs,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> rhs
+) noexcept
+{
+    return lhs.GetRawBits() < rhs.GetRawBits();
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline bool operator >(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> lhs,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> rhs
+) noexcept
+{
+    return lhs.GetRawBits() > rhs.GetRawBits();
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline bool operator <=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> lhs,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> rhs
+) noexcept
+{
+    return lhs.GetRawBits() <= rhs.GetRawBits();
+}
+
+template<typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
+inline bool operator >=(
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> lhs,
+    FixedNumber<BaseType, IntegerBitCount, FractionBitCount> rhs
+) noexcept
+{
+    return lhs.GetRawBits() >= rhs.GetRawBits();
+}
