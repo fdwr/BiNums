@@ -15,6 +15,10 @@ x64/
 [Bb]in/
 [Oo]bj/
 /build/
+Win32_Debug/
+Win32_Release/
+x64_Debug/
+x64_Release/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
