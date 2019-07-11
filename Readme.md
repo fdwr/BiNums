@@ -6,17 +6,17 @@ https://github.com/fdwr/BiNums
 
 ## Usage examples
 
-    binums 12.75  // floating point value in various formats\n"
-    binums 0b1101  // read binary integer\n"
-    binums float32 raw 0x40490FDB  // read raw floating point bits\n"
-    binums float16 raw 0x5140  // read raw floating point bits\n"
-    binums fields hex 7 12.75 -13 bin 7 12.75 -13  // see fields of numbers\n"
-    binums int8 fields 13 -13  // see fields of numbers\n"
-    binums uint32 add 1.5 3.25  // perform operation\n"
-    binums float32 add float16 2 3  // read float16, compute in float32\n"
-    binums uint32 mul 3 2 add 3 2 subtract 3 2 dot 1 2 3 4\n"
-    binums 0x1.5p5  // floating point hexadecimal\n"
-    binums fixed12_12 sub 3.5 2  // fixed point arithmetic\n"
+    binums 12.75  // floating point value in various formats
+    binums 0b1101  // read binary integer
+    binums float32 raw 0x40490FDB  // read raw floating point bits
+    binums float16 raw 0x5140  // read raw floating point bits
+    binums fields hex 7 12.75 -13 bin 7 12.75 -13  // see fields of numbers
+    binums int8 fields 13 -13  // see fields of numbers
+    binums uint32 add 1.5 3.25  // perform operation
+    binums float32 add float16 2 3  // read float16, compute in float32
+    binums uint32 mul 3 2 add 3 2 subtract 3 2 dot 1 2 3 4
+    binums 0x1.5p5  // floating point hexadecimal
+    binums fixed12_12 sub 3.5 2  // fixed point arithmetic
 
 ## Options
 
