@@ -1,11 +1,12 @@
 BiNums - see binary numbers
-2019-02-14..2019-03-21  
+2019-02-14..2019-07-11  
 Dwayne Robinson  
-Displays a number in various formats as binary/hex or vice versa.
+Displays a number in various formats as binary/hex or vice versa.  
+https://github.com/fdwr/BiNums
 
 ## Usage examples
 
-    binums 12.75 // floating point value in various formats\n"
+    binums 12.75  // floating point value in various formats\n"
     binums 0b1101  // read binary integer\n"
     binums float32 raw 0x40490FDB  // read raw floating point bits\n"
     binums float16 raw 0x5140  // read raw floating point bits\n"
