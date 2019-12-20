@@ -1412,7 +1412,7 @@ void PrintUsage()
         "   uint8 uint16 uint32 uint64 int8 int16 int32 int64 - set integer data type\n"
         "   fixed12_12 fixed16_16 fixed8_24 - set fixed precision data type\n"
         "\n"
-        "Dwayne Robinson, 2019-02-14..2019-07-11, No Copyright\n"
+        "Dwayne Robinson, 2019-02-14..2019-12-19, No Copyright\n"
         "https://github.com/fdwr/BiNums\n"
     );
 }
