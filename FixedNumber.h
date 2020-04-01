@@ -75,6 +75,18 @@ struct FixedNumber
         return GetFloat();
     }
 
+    void Truncate()
+    {
+        IntegerType fractionalBitsMask = (1 << FractionBitCount) - 1;
+        IntegerType intermediate = static_cast<IntegerType>(value);
+        if (value < 0)
+        {
+            intermediate += fractionalBitsMask;
+        }
+        intermediate &= ~fractionalBitsMask;
+        value = intermediate;
+    }
+
     BaseType value;
 };
 
