@@ -1,7 +1,7 @@
-BiNums - see binary numbers
-2019-02-14..2019-07-11  
+BiNums - binary number viewer displays numbers in various formats
+2019-02-14..2021-02-24  
 Dwayne Robinson  
-Displays a number in various formats as binary/hex or vice versa.  
+
 https://github.com/fdwr/BiNums
 
 ## Usage examples
