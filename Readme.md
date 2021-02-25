@@ -30,6 +30,8 @@ https://github.com/fdwr/BiNums
 
 ## Sample output
 
+![](BiNums.png)
+
 Display integer:
 
     BiNums.exe 123
@@ -43,38 +45,38 @@ Display integer:
         fields bin int:0b0000000000000000000000001111011 sign:0b0
 
     To binary:
-             uint8 123 -> 0x7B
-            uint16 123 -> 0x007B
-            uint32 123 -> 0x0000007B
-            uint64 123 -> 0x000000000000007B
-              int8 123 -> 0x7B
-             int16 123 -> 0x007B
-     ->      int32 123 -> 0x0000007B
-             int64 123 -> 0x000000000000007B
-           float16 123 -> 0x57B0
-          bfloat16 123 -> 0x42F6
-           float32 123 -> 0x42F60000
-           float64 123 -> 0x405EC00000000000
-        fixed12_12 123 -> 0x07B000
-        fixed16_16 123 -> 0x007B0000
-         fixed8_24 123 -> 0x7B000000
+             uint8 0x7B
+            uint16 0x007B
+            uint32 0x0000007B
+            uint64 0x000000000000007B
+              int8 0x7B
+             int16 0x007B
+     ->      int32 0x0000007B
+             int64 0x000000000000007B
+           float16 0x57B0
+          bfloat16 0x42F6
+           float32 0x42F60000
+           float64 0x405EC00000000000
+        fixed12_12 0x07B000
+        fixed16_16 0x007B0000
+         fixed8_24 0x7B000000
 
     From binary:
-             uint8 123 <- 0x7B
-            uint16 123 <- 0x007B
-            uint32 123 <- 0x0000007B
-            uint64 123 <- 0x000000000000007B
-              int8 123 <- 0x7B
-             int16 123 <- 0x007B
-     ->      int32 123 <- 0x0000007B
-             int64 123 <- 0x000000000000007B
-           float16 7.331371307373046875e-06 <- 0x007B
-          bfloat16 1.12957660274329190218871e-38 <- 0x007B
-           float32 1.72359711111952499723619e-43 <- 0x0000007B
-           float64 6.0770074438473324933718e-322 <- 0x000000000000007B
-        fixed12_12 0.030029296875 <- 0x00007B
-        fixed16_16 0.0018768310546875 <- 0x0000007B
-         fixed8_24 7.331371307373046875e-06 <- 0x0000007B
+             uint8 123
+            uint16 123
+            uint32 123
+            uint64 123
+              int8 123
+             int16 123
+     ->      int32 123
+             int64 123
+           float16 7.331371307373046875e-06
+          bfloat16 1.12957660274329190218871e-38
+           float32 1.72359711111952499723619e-43
+           float64 6.0770074438473324933718e-322
+        fixed12_12 0.030029296875
+        fixed16_16 0.0018768310546875
+         fixed8_24 7.331371307373046875e-06
 
 Display floating point value:
 
@@ -89,38 +91,38 @@ Display floating point value:
         fields bin frac:0b1001100000000000000000000000000000000000000000000000 exp:0b10000000010 sign:0b0
 
     To binary:
-             uint8 12 -> 0x0C
-            uint16 12 -> 0x000C
-            uint32 12 -> 0x0000000C
-            uint64 12 -> 0x000000000000000C
-              int8 12 -> 0x0C
-             int16 12 -> 0x000C
-             int32 12 -> 0x0000000C
-             int64 12 -> 0x000000000000000C
-           float16 12.75 -> 0x4A60
-          bfloat16 12.75 -> 0x414C
-           float32 12.75 -> 0x414C0000
-     ->    float64 12.75 -> 0x4029800000000000
-        fixed12_12 12.75 -> 0x00CC00
-        fixed16_16 12.75 -> 0x000CC000
-         fixed8_24 12.75 -> 0x0CC00000
+             uint8 0x0C
+            uint16 0x000C
+            uint32 0x0000000C
+            uint64 0x000000000000000C
+              int8 0x0C
+             int16 0x000C
+             int32 0x0000000C
+             int64 0x000000000000000C
+           float16 0x4A60
+          bfloat16 0x414C
+           float32 0x414C0000
+     ->    float64 0x4029800000000000
+        fixed12_12 0x00CC00
+        fixed16_16 0x000CC000
+         fixed8_24 0x0CC00000
 
     From binary:
-             uint8 0 <- 0x00
-            uint16 0 <- 0x0000
-            uint32 0 <- 0x00000000
-            uint64 4623367229960880128 <- 0x4029800000000000
-              int8 0 <- 0x00
-             int16 0 <- 0x0000
-             int32 0 <- 0x00000000
-             int64 4623367229960880128 <- 0x4029800000000000
-           float16 0 <- 0x0000
-          bfloat16 0 <- 0x0000
-           float32 0 <- 0x00000000
-     ->    float64 12.75 <- 0x4029800000000000
-        fixed12_12 0 <- 0x000000
-        fixed16_16 0 <- 0x00000000
-         fixed8_24 0 <- 0x00000000
+             uint8 0
+            uint16 0
+            uint32 0
+            uint64 4623367229960880128
+              int8 0
+             int16 0
+             int32 0
+             int64 4623367229960880128
+           float16 0
+          bfloat16 0
+           float32 0
+     ->    float64 12.75
+        fixed12_12 0
+        fixed16_16 0
+         fixed8_24 0
 
 Display multiple values in a specific format:
 
