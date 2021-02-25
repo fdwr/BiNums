@@ -1,8 +1,9 @@
 ## BiNums - binary number viewer that displays numbers in various formats  
 2019-02-14..2021-02-24  
 Dwayne Robinson  
+https://github.com/fdwr/BiNums  
 
-https://github.com/fdwr/BiNums
+![](BiNums.png)
 
 ## Usage examples
 
@@ -29,8 +30,6 @@ https://github.com/fdwr/BiNums
     fixed12_12 fixed16_16 fixed8_24 - set fixed precision data type
 
 ## Sample output
-
-![](BiNums.png)
 
 Display integer:
 
