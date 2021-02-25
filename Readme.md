@@ -1,4 +1,4 @@
-BiNums - binary number viewer displays numbers in various formats
+## BiNums - binary number viewer that displays numbers in various formats  
 2019-02-14..2021-02-24  
 Dwayne Robinson  
 
