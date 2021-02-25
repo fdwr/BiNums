@@ -31,7 +31,7 @@ https://github.com/fdwr/BiNums
 
 ## Sample output
 
-Display integer:
+### Display integer:
 
     BiNums.exe 123
     Representations:
@@ -77,7 +77,7 @@ Display integer:
         fixed16_16 0.0018768310546875
          fixed8_24 7.331371307373046875e-06
 
-Display floating point value:
+### Display floating point value:
 
     BiNums.exe 12.75
     Representations:
@@ -123,21 +123,21 @@ Display floating point value:
         fixed16_16 0
          fixed8_24 0
 
-Display multiple values in a specific format:
+### Display multiple values in a specific format:
 
     BiNums.exe float64 1 3.14159 1234
           float64 1 (0x3FF0000000000000)
           float64 3.14159 (0x400921F9F01B866E)
           float64 1234 (0x4093480000000000)
 
-Show as binary rather than hex:
+### Show as binary rather than hex:
 
     BiNums.exe float64 bin 1 3.14159 1234
           float64 1 (0b0011111111110000000000000000000000000000000000000000000000000000)
           float64 3.14159 (0b0100000000001001001000011111100111110000000110111000011001101110)
           float64 1234 (0b0100000010010011010010000000000000000000000000000000000000000000)
 
-Add values:
+### Add values:
 
     BiNums.exe float64 add 1 3.14159 1234
     Operands:
