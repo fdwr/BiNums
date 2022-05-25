@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SeeBiNum", "SeeBiNum.vcxproj", "{F200543E-D262-49FA-B275-E1133435AAA4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BiNums", "BiNums.vcxproj", "{F200543E-D262-49FA-B275-E1133435AAA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
