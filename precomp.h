@@ -2,11 +2,12 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstdarg>
 #include <string_view>
-#include <assert.h>
+#include <cassert>
+#include <vector>
 #include "Half.h"
 #include "Int24.h"
 #include "FixedNumber.h"
@@ -22,5 +23,12 @@ static_assert(sizeof(float32_t) == 4);
 static_assert(sizeof(float64_t) == 8);
 static_assert(sizeof(float16_t) == 2);
 static_assert(sizeof(bfloat16_t) == 2);
+
+#ifndef _MSC_VER
+#define _In_z_
+#define _Inout_
+#define _Out_
+#define _Null_terminated_
+#endif
 
 #endif //PCH_H

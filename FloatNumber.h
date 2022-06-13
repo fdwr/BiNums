@@ -26,8 +26,10 @@ template <
 struct FloatDefinition
 {
     // The warning is bogus, since the shift result is not actually used in such a case.
+#ifdef _MSC_VER
     #pragma warning(push)
     #pragma warning(disable : 4293) // '<<': shift count negative or too big, undefined behavior
+#endif
 
     using baseIntegerType = BaseIntegerType;
 
@@ -57,7 +59,9 @@ struct FloatDefinition
     static constexpr BaseIntegerType exponentMask               = SafeLeftShift(ulp, FractionBitCount + ExponentBitCount) - SafeLeftShift(ulp, FractionBitCount);
     static constexpr BaseIntegerType fractionAndExponentMask    = fractionMask | exponentMask;
     static constexpr BaseIntegerType maximumLegalValue          = HasInfinity ? exponentMask : fractionAndExponentMask; // Clamp to positive infinity and max bit value.
+#ifdef _MSC_VER
     #pragma warning(pop)
+#endif
 };
 
 // Minihelper shifts left if positive (right if negative).
@@ -68,7 +72,7 @@ T constexpr LeftRightShift(T t, int32_t shift) noexcept
 }
 
 template <typename SourceFloatDefinition, typename TargetFloatDefinition>
-static constexpr TargetFloatDefinition::baseIntegerType ConvertRawFloatType(typename SourceFloatDefinition::baseIntegerType sourceValue) noexcept
+static constexpr typename TargetFloatDefinition::baseIntegerType ConvertRawFloatType(typename SourceFloatDefinition::baseIntegerType sourceValue) noexcept
 {
     // Shift the fraction, exponent, and sign from their respective locations in the float32
     // to the target type.
@@ -77,7 +81,7 @@ static constexpr TargetFloatDefinition::baseIntegerType ConvertRawFloatType(type
 
     using Source = SourceFloatDefinition;
     using Target = TargetFloatDefinition;
-    using IntermediateType = std::conditional_t<(Source::totalBitCount > Target::totalBitCount), Source::baseIntegerType, Target::baseIntegerType>;
+    using IntermediateType = std::conditional_t<(Source::totalBitCount > Target::totalBitCount), typename Source::baseIntegerType, typename Target::baseIntegerType>;
 
     if (Target::exponentBitCount == Source::exponentBitCount && Target::hasSign == Source::hasSign)
     {

@@ -253,8 +253,8 @@ enum class NumericPrintingFlags : uint32_t
 inline constexpr NumericPrintingFlags operator ~ (NumericPrintingFlags lhs) { return NumericPrintingFlags(~uint32_t(lhs)); }
 inline constexpr NumericPrintingFlags operator & (NumericPrintingFlags lhs, NumericPrintingFlags rhs) { return NumericPrintingFlags(uint32_t(lhs) & uint32_t(rhs)); }
 inline constexpr NumericPrintingFlags operator | (NumericPrintingFlags lhs, NumericPrintingFlags rhs) { return NumericPrintingFlags(uint32_t(lhs) & uint32_t(rhs)); }
-inline constexpr bool operator == (NumericPrintingFlags lhs, uint32_t rhs) { return uint32_t(lhs) == 0; }
-inline constexpr bool operator != (NumericPrintingFlags lhs, uint32_t rhs) { return uint32_t(lhs) != 0; }
+inline constexpr bool operator == (NumericPrintingFlags lhs, uint32_t /* rhs */) { return uint32_t(lhs) == 0; }
+inline constexpr bool operator != (NumericPrintingFlags lhs, uint32_t /* rhs */) { return uint32_t(lhs) != 0; }
 
 struct NumberUnionAndType
 {
@@ -795,7 +795,7 @@ void AppendFormattedRawInteger(
 {
     const uint32_t bitOffset = bitRange.begin;
     const uint32_t bitCount = bitRange.end - bitOffset;
-    const uint64_t valueMask = (bitCount >= 64) ? ~uint64_t(0) : (1ui64 << bitCount) - 1;
+    const uint64_t valueMask = (bitCount >= 64) ? ~uint64_t(0) : (uint64_t(1) << bitCount) - 1;
     value >>= bitOffset;
     value &= valueMask;
 
@@ -1112,7 +1112,7 @@ void PrintAllNumericTypesFromBinary(
 void PrintAllPrintingFormats(
     double valueFloat,
     int64_t valueInteger,
-    NumericPrintingFlags numericPrintingFlags = NumericPrintingFlags::Default,
+    NumericPrintingFlags /* numericPrintingFlags = NumericPrintingFlags::Default */,
     ElementType elementType = ElementType::Undefined
 )
 {
