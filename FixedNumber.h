@@ -16,7 +16,7 @@
 template <typename BaseType, unsigned int IntegerBitCount, unsigned int FractionBitCount>
 struct FixedNumber
 {
-    using Self = FixedNumber<typename BaseType, IntegerBitCount, FractionBitCount>;
+    using Self = FixedNumber<BaseType, IntegerBitCount, FractionBitCount>;
 
     constexpr static int32_t TotalBitCount = IntegerBitCount + FractionBitCount;
     constexpr static float FractionMultiple = 1 << FractionBitCount;

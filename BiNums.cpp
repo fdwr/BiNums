@@ -552,6 +552,7 @@ NumberSubstructure const& GetElementTypeSubstructure(ElementType dataType) noexc
     case ElementType::Fixed24f12i12:    value = *reinterpret_cast<const Fixed24f12i12*>(data);      break;
     case ElementType::Fixed32f16i16:    value = *reinterpret_cast<const Fixed32f16i16*>(data);      break;
     case ElementType::Fixed32f24i8:     value = *reinterpret_cast<const Fixed32f24i8*>(data);       break;
+    default:                            assert(false);                                              break;
     }
 
     return value;
@@ -583,6 +584,7 @@ NumberSubstructure const& GetElementTypeSubstructure(ElementType dataType) noexc
     case ElementType::Fixed24f12i12:    value = int64_t(*reinterpret_cast<const Fixed24f12i12*>(data)); break;
     case ElementType::Fixed32f16i16:    value = int64_t(*reinterpret_cast<const Fixed32f16i16*>(data)); break;
     case ElementType::Fixed32f24i8:;    value = int64_t(*reinterpret_cast<const Fixed32f24i8*>(data));  break;
+    default:                            assert(false);                                              break;
     }
 
     return value;
@@ -614,6 +616,7 @@ NumberSubstructure const& GetElementTypeSubstructure(ElementType dataType) noexc
     case ElementType::Fixed24f12i12:    value = int64_t(*reinterpret_cast<const int24_t*>(data));   break;
     case ElementType::Fixed32f16i16:    value = int64_t(*reinterpret_cast<const int32_t*>(data));   break;
     case ElementType::Fixed32f24i8:;    value = int64_t(*reinterpret_cast<const int32_t*>(data));   break;
+    default:                            assert(false);                                              break;
     }
 
     return value;
@@ -643,6 +646,7 @@ void WriteFromDouble(ElementType dataType, double value, /*out*/ void* data)
     case ElementType::Fixed24f12i12:    *reinterpret_cast<Fixed24f12i12*>(data) = float(value);     break;
     case ElementType::Fixed32f16i16:    *reinterpret_cast<Fixed32f16i16*>(data) = float(value);     break;
     case ElementType::Fixed32f24i8:;    *reinterpret_cast<Fixed32f24i8*>(data) = float(value);      break;
+    default:                            assert(false);                                              break;
     }
 
     // Use half_float::detail::float2half explicitly rather than the half constructor.
@@ -677,6 +681,7 @@ void WriteFromInt64(ElementType dataType, int64_t value, /*out*/ void* data)
     case ElementType::Fixed24f12i12: *reinterpret_cast<Fixed24f12i12*>(data) = float(value);            break;
     case ElementType::Fixed32f16i16: *reinterpret_cast<Fixed32f16i16*>(data) = float(value);            break;
     case ElementType::Fixed32f24i8:  *reinterpret_cast<Fixed32f24i8*>(data) = float(value);             break;
+    default:                            assert(false);                                              break;
     }
 }
 
@@ -704,6 +709,7 @@ void CastElementType(ElementType dataType, void const* inputData, /*out*/ void* 
     case ElementType::Fixed24f12i12: *reinterpret_cast<Fixed24f12i12*>(outputData) = *reinterpret_cast<const Fixed24f12i12*>(inputData);  break;
     case ElementType::Fixed32f16i16: *reinterpret_cast<uint32_t*>(outputData)   = *reinterpret_cast<const uint32_t*>(inputData);    break;
     case ElementType::Fixed32f24i8:  *reinterpret_cast<uint32_t*>(outputData)   = *reinterpret_cast<const uint32_t*>(inputData);    break;
+    default:                            assert(false);                                              break;
     }
 }
 
@@ -1158,7 +1164,6 @@ void ParseNumber(
 
     const bool isUndefinedType = (preferredElementType == ElementType::Undefined);
     const bool isFractionalType = IsFractionalElementType(preferredElementType);
-    const bool parseFloatingPoint = isUndefinedType | isFractionalType;
 
     char* valueStringEnd = nullptr;
     const double valueFloat = strtod(valueString, &valueStringEnd);
@@ -1516,6 +1521,9 @@ void PerformNumericOperation(
     case NumericOperationType::Nothing:
         results.clear();
         return;
+
+    default:
+        break;
     }
 
     if (resultCount <= 0)
@@ -1668,7 +1676,7 @@ int ParseOperations(
     while (!operationString.empty())
     {
         std::string_view param = GetIdentifier(operationString);
-        operationString = std::string_view{param.data() + param.size(), end};
+        operationString = std::string_view{param.data() + param.size(), size_t(end - param.data())};
 
         NumericOperationAndRange numericOperationAndRange = {};
 
