@@ -1,0 +1,21 @@
+# Set the default behavior to store text line endings as as LF; overrides any [core] settings
+* text=false
+
+# Text files to be normalized to native line endings
+*.c text
+*.cpp text
+*.h text
+*.md text
+
+.gitattributes text
+.gitignore text
+.gitconfig text
+.gitmodules text
+
+# Text to files to always have CRLF line endings
+*.sln text eol=crlf
+*.vcxproj text eol=crlf
+
+# Binary files not to be modified
+*.png binary
+*.jpg binary
