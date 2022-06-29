@@ -1,0 +1,19 @@
+# Auto detect text files and do not perform LF normalization - leave files as-is!
+* -text
+
+*.cs text diff=csharp
+*.txt text diff
+*.h text diff
+*.c text diff
+*.cpp text diff
+*.md text diff
+*.vcxproj text diff
+*.sln text diff
+
+# Text to files to always have CRLF line endings
+*.sln text diff eol=crlf
+*.vcxproj text diff eol=crlf
+
+# Binary files not to be modified
+*.png binary
+*.jpg binary
