@@ -22,3 +22,24 @@
 # Binary files not to be modified
 *.png binary
 *.jpg binary
+=======
+# Avoid line normalization which yields nondeterministic file hashes on different OS's (leave file content as-is!).
+# This avoids any user's local core.autocrlf from messing it up.
+* -text
+
+*.cs  diff=csharp !eol
+*.txt diff !eol
+*.h   diff !eol
+*.c   diff !eol
+*.cpp diff !eol
+*.md  diff !eol
+
+# Text to files to always have CRLF line endings
+*.sln diff eol=crlf
+*.vcxproj diff eol=crlf
+
+# Binary files not to be modified
+*.png binary
+*.jpg binary
+
+# https://www.aleksandrhovhannisyan.com/blog/crlf-vs-lf-normalizing-line-endings-in-git/
