@@ -1668,6 +1668,7 @@ int ParseOperations(
     bool parseAsRawData = false;
     ElementType preferredElementType = ElementType::Undefined;
     NumericPrintingFlags numericPrintingFlags = NumericPrintingFlags::Default;
+    bool isWithinParentheses = false;
 
     operations.clear();
     numbers.clear();
@@ -1676,13 +1677,14 @@ int ParseOperations(
     while (!operationString.empty())
     {
         std::string_view param = GetIdentifier(operationString);
-        operationString = std::string_view{param.data() + param.size(), size_t(end - param.data())};
+        char const* paramEnd = param.data() + param.size();
+        operationString = std::string_view{paramEnd, size_t(end - paramEnd)};
 
         NumericOperationAndRange numericOperationAndRange = {};
 
         // Check if ordinary number or operator.
         if ((!param.empty() && isdigit(param.front()))
-            ||  (param.size() >= 2 && param.front() == '-' && isdigit(param[1])))
+        ||  (param.size() >= 2 && param.front() == '-' && isdigit(param[1])))
         {
             auto value = param.begin();
             while (value != param.end())
@@ -1874,6 +1876,24 @@ int ParseOperations(
                 numericPrintingFlags = SetFlags(numericPrintingFlags, NumericPrintingFlags::ShowRawFieldsMask, NumericPrintingFlags::HideRawFields);
                 break;
 
+            case Hash("("):
+                if (isWithinParentheses)
+                {
+                    errorMessage = GetFormattedMessage("Nested parentheses not supported");
+                    return EXIT_FAILURE;
+                }
+                isWithinParentheses = true;
+                break;
+
+            case Hash(")"):
+                if (!isWithinParentheses)
+                {
+                    errorMessage = GetFormattedMessage("Closing parenthesis without opening parenthesis");
+                    return EXIT_FAILURE;
+                }
+                isWithinParentheses = false;
+                break;
+
             default:
                 errorMessage = GetFormattedMessage("Unknown parameter: \"%.*s\"", int(param.size()), param.data());
                 return EXIT_FAILURE;
@@ -1883,6 +1903,11 @@ int ParseOperations(
         // Append any new numeric operations.
         if (numericOperationAndRange.numericOperationType != NumericOperationType::None)
         {
+            if (isWithinParentheses)
+            {
+                errorMessage = GetFormattedMessage("Operations are not supported inside parentheses");
+            }
+
             const uint32_t numberCount = static_cast<uint32_t>(numbers.size());
             if (!operations.empty())
             {
@@ -1893,6 +1918,12 @@ int ParseOperations(
             numericOperationAndRange.outputElementType = preferredElementType;
             operations.push_back(numericOperationAndRange);
         }
+    }
+
+    if (isWithinParentheses)
+    {
+        errorMessage = GetFormattedMessage("Unclosed parentheses");
+        return EXIT_FAILURE;
     }
 
     const uint32_t numberCount = static_cast<uint32_t>(numbers.size());
