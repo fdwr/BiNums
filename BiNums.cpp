@@ -1506,12 +1506,12 @@ void PerformNumericOperation(
     size_t resultCount = 1;
     switch (numericOperationType)
     {
-        // case NumericOperationType::Add:
-        // case NumericOperationType::Subtract:
-        // case NumericOperationType::Multiply:
-        // case NumericOperationType::Divide:
-        //     resultCount = 1;
-        //     break;
+    // case NumericOperationType::Add:
+    // case NumericOperationType::Subtract:
+    // case NumericOperationType::Multiply:
+    // case NumericOperationType::Divide:
+    //     resultCount = 1;
+    //     break;
 
     case NumericOperationType::Nop:
     case NumericOperationType::Truncate:

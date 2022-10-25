@@ -1,0 +1,68 @@
+//-----------------------------------------------------------------------------
+//
+//  See:
+//  https://arxiv.org/abs/2209.05433 FP8 Formats for Deep Learning
+//  https://arxiv.org/abs/2206.02915 8-bit Numerical Formats for Deep Neural Networks 2022-10-24
+//
+//-----------------------------------------------------------------------------
+
+#pragma once
+
+#error "Not implemented. Finish conversion logic."
+
+struct float8m3e4s1_t
+{
+    float8m3e4s1_t() = default;
+    float8m3e4s1_t(const float8m3e4s1_t&) = default;
+    float8m3e4s1_t(float8m3e4s1_t&&) = default;
+
+    float8m3e4s1_t(float floatValue) noexcept
+    {
+        // TODO:
+        value = ... floatValue ...;
+    }
+
+    float8m3e4s1_t& operator =(const float8m3e4s1_t&) = default;
+
+    float8m3e4s1_t& operator =(float floatValue) noexcept
+    {
+        // TODO:
+        value = ... floatValue ...;
+        return *this;
+    }
+
+    operator float() const noexcept
+    {
+        float floatValue = 0.0;
+        // TODO:
+        ... floatValue = = value ...;
+        return floatValue;
+    }
+
+    uint8_t value;
+};
+
+inline float8m3e4s1_t operator +(float8m3e4s1_t a, float8m3e4s1_t b) noexcept { return float(a) + float(b); }
+inline float8m3e4s1_t operator -(float8m3e4s1_t a, float8m3e4s1_t b) noexcept { return float(a) - float(b); }
+inline float8m3e4s1_t operator *(float8m3e4s1_t a, float8m3e4s1_t b) noexcept { return float(a) * float(b); }
+inline float8m3e4s1_t operator /(float8m3e4s1_t a, float8m3e4s1_t b) noexcept { return float(a) / float(b); }
+inline float8m3e4s1_t operator +(float8m3e4s1_t a, double b) noexcept { return float(a) + float(b); }
+inline float8m3e4s1_t operator -(float8m3e4s1_t a, double b) noexcept { return float(a) - float(b); }
+inline float8m3e4s1_t operator *(float8m3e4s1_t a, double b) noexcept { return float(a) * float(b); }
+inline float8m3e4s1_t operator /(float8m3e4s1_t a, double b) noexcept { return float(a) / float(b); }
+inline float8m3e4s1_t operator +(double a, float8m3e4s1_t b) noexcept { return float(a) + float(b); }
+inline float8m3e4s1_t operator -(double a, float8m3e4s1_t b) noexcept { return float(a) - float(b); }
+inline float8m3e4s1_t operator *(double a, float8m3e4s1_t b) noexcept { return float(a) * float(b); }
+inline float8m3e4s1_t operator /(double a, float8m3e4s1_t b) noexcept { return float(a) / float(b); }
+inline float8m3e4s1_t& operator +=(float8m3e4s1_t& a, float8m3e4s1_t b) noexcept { return a = (float(a) + float(b)); }
+inline float8m3e4s1_t& operator -=(float8m3e4s1_t& a, float8m3e4s1_t b) noexcept { return a = (float(a) - float(b)); }
+inline float8m3e4s1_t& operator *=(float8m3e4s1_t& a, float8m3e4s1_t b) noexcept { return a = (float(a) * float(b)); }
+inline float8m3e4s1_t& operator /=(float8m3e4s1_t& a, float8m3e4s1_t b) noexcept { return a = (float(a) / float(b)); }
+inline float8m3e4s1_t& operator ++(float8m3e4s1_t& a) noexcept { return a = float(a) + 1; }
+inline float8m3e4s1_t& operator --(float8m3e4s1_t& a) noexcept { return a = float(a) + 1; }
+inline bool operator==(float8m3e4s1_t lhs, float8m3e4s1_t rhs) noexcept { return float(lhs) == float(rhs); }
+inline bool operator!=(float8m3e4s1_t lhs, float8m3e4s1_t rhs) noexcept { return float(lhs) != float(rhs); }
+inline bool operator< (float8m3e4s1_t lhs, float8m3e4s1_t rhs) noexcept { return float(lhs) <  float(rhs); }
+inline bool operator> (float8m3e4s1_t lhs, float8m3e4s1_t rhs) noexcept { return float(lhs) >  float(rhs); }
+inline bool operator<=(float8m3e4s1_t lhs, float8m3e4s1_t rhs) noexcept { return float(lhs) <= float(rhs); }
+inline bool operator>=(float8m3e4s1_t lhs, float8m3e4s1_t rhs) noexcept { return float(lhs) >= float(rhs); }
