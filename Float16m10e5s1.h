@@ -13,6 +13,11 @@
 
 #pragma once
 
+#if 0 // TODO: Enable after adding test cases.
+
+using float16m10e5s1_t = FloatNumber<uint16_t, 10, 5, true, true, true>;
+
+#else
 
 struct float16m10e5s1_t
 {
@@ -87,6 +92,9 @@ struct float16m10e5s1_t
 
     // constexpr float testNumbers[] = {0.0f, 1.0f, -1.0f, 0.5f, -0.5f, 65504.0f, -65504.0f, 16777216.0f, -16777216.0f, std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::quiet_NaN(), -std::numeric_limits<float>::infinity()};
 };
+
+#endif
+
 
 inline float16m10e5s1_t operator +(float16m10e5s1_t a, float16m10e5s1_t b) noexcept { return float(a) + float(b); }
 inline float16m10e5s1_t operator -(float16m10e5s1_t a, float16m10e5s1_t b) noexcept { return float(a) - float(b); }

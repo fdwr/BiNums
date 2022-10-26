@@ -10,6 +10,7 @@
 #include "Half.h"
 #include "Int24.h"
 #include "FixedNumber.h"
+#include "FloatNumber.h"
 #include "Float16m7e8s1.h"
 
 using float32_t = float;

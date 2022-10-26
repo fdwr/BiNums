@@ -180,6 +180,7 @@
     <ClInclude Include="Float16m7e8s1.h" />
     <ClInclude Include="Float8m2e5s1.h" />
     <ClInclude Include="Float8m3e4s1.h" />
+    <ClInclude Include="FloatNumber.h" />
     <ClInclude Include="Half.h" />
     <ClInclude Include="precomp.h" />
     <ClInclude Include="Int24.h" />

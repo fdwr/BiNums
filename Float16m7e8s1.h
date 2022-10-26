@@ -12,6 +12,12 @@
 
 #pragma once
 
+#if 0 // TODO: Enable after adding test cases.
+
+using float16m7e8s1_t = FloatNumber<uint16_t, 7, 8, true, true, true>;
+
+#else
+
 struct float16m7e8s1_t
 {
     float16m7e8s1_t() = default;
@@ -40,6 +46,8 @@ struct float16m7e8s1_t
 
     uint16_t value;
 };
+
+#endif
 
 inline float16m7e8s1_t operator +(float16m7e8s1_t a, float16m7e8s1_t b) noexcept { return float(a) + float(b); }
 inline float16m7e8s1_t operator -(float16m7e8s1_t a, float16m7e8s1_t b) noexcept { return float(a) - float(b); }
