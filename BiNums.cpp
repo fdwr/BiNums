@@ -1894,6 +1894,10 @@ int ParseOperations(
                 isWithinParentheses = false;
                 break;
 
+            case Hash(","):
+                // Ignore commas.
+                break;
+
             default:
                 errorMessage = GetFormattedMessage("Unknown parameter: \"%.*s\"", int(param.size()), param.data());
                 return EXIT_FAILURE;
