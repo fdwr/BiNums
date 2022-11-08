@@ -253,8 +253,8 @@ enum class NumericPrintingFlags : uint32_t
 inline constexpr NumericPrintingFlags operator ~ (NumericPrintingFlags lhs) { return NumericPrintingFlags(~uint32_t(lhs)); }
 inline constexpr NumericPrintingFlags operator & (NumericPrintingFlags lhs, NumericPrintingFlags rhs) { return NumericPrintingFlags(uint32_t(lhs) & uint32_t(rhs)); }
 inline constexpr NumericPrintingFlags operator | (NumericPrintingFlags lhs, NumericPrintingFlags rhs) { return NumericPrintingFlags(uint32_t(lhs) & uint32_t(rhs)); }
-inline constexpr bool operator == (NumericPrintingFlags lhs, uint32_t /* rhs */) { return uint32_t(lhs) == 0; }
-inline constexpr bool operator != (NumericPrintingFlags lhs, uint32_t /* rhs */) { return uint32_t(lhs) != 0; }
+inline constexpr bool operator == (NumericPrintingFlags lhs, uint32_t rhs) { return uint32_t(lhs) == rhs; }
+inline constexpr bool operator != (NumericPrintingFlags lhs, uint32_t rhs) { return uint32_t(lhs) != rhs; }
 
 struct NumberUnionAndType
 {
@@ -1112,7 +1112,6 @@ void PrintAllNumericTypesFromBinary(
 void PrintAllPrintingFormats(
     double valueFloat,
     int64_t valueInteger,
-    NumericPrintingFlags /* numericPrintingFlags = NumericPrintingFlags::Default */,
     ElementType elementType = ElementType::Undefined
 )
 {
@@ -2011,7 +2010,7 @@ int main(int argc, char* argv[])
         int64_t valueInteger = ReadRawBitValue(numberUnion.elementType, &numberUnion.numberUnion);
 
         printf("Representations:\n");
-        PrintAllPrintingFormats(valueFloat, valueInteger, numberUnion.printingFlags, numberUnion.elementType);
+        PrintAllPrintingFormats(valueFloat, valueInteger, numberUnion.elementType);
 
         printf("\n" "To binary:\n");
         PrintAllNumericTypesToBinary(numberUnion.numberUnion, numberUnion.printingFlags, numberUnion.elementType);
