@@ -42,6 +42,7 @@ endif()
 add_executable(binums)
 
 target_sources(binums PUBLIC
+  Common.h
   FixedNumber.h
   Float16m7e8s1.h
   Half.h
@@ -49,9 +50,29 @@ target_sources(binums PUBLIC
   precomp.h
 
   BiNums.cpp
+  BiNumsMain.cpp
+  precomp.cpp
+)
+
+add_executable(binumstest)
+
+target_sources(binumstest PUBLIC
+  Common.h
+  FixedNumber.h
+  Float16m7e8s1.h
+  Half.h
+  Int24.h
+  precomp.h
+
+  BiNums.cpp
+  BiNumsTest.cpp
   precomp.cpp
 )
 
 target_include_directories(binums PUBLIC
+  ${LOCAL_INCLUDE_DIR}
+)
+
+target_include_directories(binumstest PUBLIC
   ${LOCAL_INCLUDE_DIR}
 )

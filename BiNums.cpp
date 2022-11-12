@@ -5,74 +5,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Generic functions/classes.
 
-struct Range
-{
-    uint32_t begin = 0;
-    uint32_t end = 0;
-};
-
-template <typename T>
-class Span
-{
-    T* begin_ = nullptr;
-    T* end_ = nullptr;
-
-public:
-    Span() = default;
-    Span(const Span&) = default;
-    Span(Span&&) = default;
-
-    template<typename U>
-    Span(Span<U>&& u) : begin_(u.begin()), end_(u.end())
-    {
-        // Ensure no accidental type slicing from child class to base class,
-        // which would access the wrong memory for later elements.
-        static_assert(sizeof(*u.begin()) == sizeof(*begin_));
-    }
-
-    Span(T* p, size_t s) : begin_(p), end_(begin_ + s) {}
-    Span(T* b, T* e) : begin_(b), end_(e) {}
-
-    const T* data() const noexcept { return begin_; }
-    T* data() noexcept { return begin_; }
-    size_t size() const noexcept { return end_ - begin_; }
-    T* begin() const noexcept { return begin_; }
-    T* end() const noexcept { return end_; }
-    T* begin() noexcept { return begin_; }
-    T* end() noexcept { return end_; }
-    T& operator [](size_t index) noexcept { return begin_[index]; }
-    const T& operator [](size_t index) const noexcept { return begin_[index]; }
-    T& front() noexcept { return *begin_; }
-    const T& front() const noexcept { return *begin_; }
-    T& back() noexcept { return *(end_ - 1); }
-    const T& back() const noexcept { return *(end_ - 1); }
-    bool empty() const noexcept { return begin_ == end_; }
-
-    void PopFront() { ++begin_; }
-    void PopBack() { ++end_; }
-};
-
-template <typename FullType, typename SmallType>
-struct SmallEnum
-{
-    SmallEnum(FullType t = {}) : value(static_cast<SmallType>(t)) {}
-    operator FullType() {return static_cast<FullType>(value);}
-
-    SmallType value;
-};
-
-template <typename ContainerType>
-auto MakeSpan(ContainerType& container) -> Span<std::remove_reference_t<decltype(*container.data())> >
-{
-    using T = std::remove_reference_t<decltype(*container.data())>;
-    return Span<T>(container.data(), container.size());
-}
-
 template <typename Enum>
-bool ComparedMaskedFlags(Enum e, Enum mask, Enum value)
+bool ComparedMaskedFlags(Enum fullEnum, Enum mask, Enum subvalue)
 {
     static_assert(sizeof(Enum) == sizeof(uint32_t)); // Doesn't work with 64-bit enums.
-    return (static_cast<uint32_t>(e) & static_cast<uint32_t>(mask)) == static_cast<uint32_t>(value);
+    return (static_cast<uint32_t>(fullEnum) & static_cast<uint32_t>(mask)) == static_cast<uint32_t>(subvalue);
 }
 
 template <typename Enum>
@@ -84,12 +21,14 @@ Enum SetFlags(Enum e, Enum clear, Enum set)
 template <typename T, typename O>
 T& CastReferenceAs(O& o)
 {
+    static_assert(sizeof(T) <= sizeof(O));
     return reinterpret_cast<T&>(o);
 }
 
 template <typename T, typename O>
 const T& CastReferenceAs(O const& o)
 {
+    static_assert(sizeof(T) <= sizeof(O));
     return reinterpret_cast<const T&>(o);
 }
 
@@ -1641,7 +1580,8 @@ std::string_view GetIdentifier(std::string_view s)
             || (ch >= 'A' && ch <= 'Z')
             || (ch >= 'a' && ch <= 'z')
             || (ch == '.')
-            || (ch == '-');
+            || (ch == '-')
+            || (ch == '_');
     };
 
     if (!isIdentifier(s[i]))
@@ -1954,7 +1894,7 @@ std::string ConcatenateCommandLineParameters(int argc, char* argv[])
     return commandLine;
 }
 
-int MainImplementation(std::string_view commandLine)
+int MainImplementation(std::string_view commandLine, std::string& stringOutput)
 {
     if (commandLine.empty())
     {
@@ -1966,14 +1906,12 @@ int MainImplementation(std::string_view commandLine)
     std::vector<NumberUnionAndType> numbers;
 
     std::string errorMessage;
-    int exitCode = ParseOperations(commandLine, /*out*/ operations, /*out*/ numbers, /*out*/ errorMessage);
+    int exitCode = ParseOperations(commandLine, /*out*/ operations, /*out*/ numbers, /*out*/ stringOutput);
     if (exitCode != EXIT_SUCCESS)
     {
-        std::puts(errorMessage.c_str());
         return exitCode;
     }
 
-    std::string stringOutput;
     if (!operations.empty())
     {
         // Process every operation in order.
@@ -2020,18 +1958,5 @@ int MainImplementation(std::string_view commandLine)
         SprintAllNumbers(/*inout*/ stringOutput, Span<const NumberUnionAndType>(numbers.data(), numbers.size()));
     }
 
-    std::fputs(stringOutput.c_str(), stdout);
-
     return EXIT_SUCCESS;
-}
-
-int main(int argc, char* argv[])
-{
-    // Standard C/C++ tries to be helpful by chopping up the arguments for us,
-    // but the general parsing function just accepts a string directly, which
-    // could come from other sources (like test cases). So restore the original
-    // single string.
-    std::string commandLine = ConcatenateCommandLineParameters(argc, argv);
-
-    return MainImplementation(commandLine);
 }

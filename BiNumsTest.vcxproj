@@ -20,11 +20,11 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{F200543E-D262-49FA-B275-E1133435AAA4}</ProjectGuid>
+    <ProjectGuid>{41FCCD2E-9947-428D-B989-C7063C80FF05}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NumBinSee</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>BiNums</ProjectName>
+    <ProjectName>BiNumsTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -175,20 +175,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="FixedNumber.h" />
-    <ClInclude Include="Float16m10e5s1.h" />
-    <ClInclude Include="Float16m7e8s1.h" />
-    <ClInclude Include="Float8m2e5s1.h" />
-    <ClInclude Include="Float8m3e4s1.h" />
-    <ClInclude Include="FloatNumber.h" />
-    <ClInclude Include="Half.h" />
     <ClInclude Include="precomp.h" />
-    <ClInclude Include="Int24.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BiNums.cpp" />
-    <ClCompile Include="BiNumsMain.cpp" />
+    <ClCompile Include="BiNumsTest.cpp" />
     <ClCompile Include="precomp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
