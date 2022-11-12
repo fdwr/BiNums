@@ -888,6 +888,7 @@ void AppendFormattedRawInteger(
     AppendFormattedRawInteger(/*inout*/ stringValue, radix, bitRange, value);
 }
 
+// Overload accepting value as number.
 void AppendFormattedNumericValue(
     /*inout*/ std::string& output,
     ElementType elementType,
@@ -919,6 +920,7 @@ void AppendFormattedNumericValue(
     }
 }
 
+// Overload accepting value as raw bits.
 void AppendFormattedNumericValue(
     /*inout*/ std::string& output,
     ElementType elementType,
@@ -962,7 +964,8 @@ void AppendFormattedNumericValue(
     }
 }
 
-void FormatNumericValue(
+// Overload accepting value as arbitrary data.
+void AppendFormattedNumericValue(
     /*inout*/ std::string& stringValue,
     ElementType elementType,
     const void* binaryData,
@@ -1008,7 +1011,7 @@ void FormatNumericValue(
     }
 }
 
-void PrintNumericType(
+void SprintNumericType(
     /*inout*/ std::string& output,
     ElementType elementType,
     const void* binaryData,
@@ -1019,7 +1022,7 @@ void PrintNumericType(
 )
 {
     output.append((elementType == originalElementType) ? " -> " : "    ");
-    FormatNumericValue(/*inout*/ output, elementType, binaryData, leftFlank, rightFlank, numericPrintingFlags);
+    AppendFormattedNumericValue(/*inout*/ output, elementType, binaryData, leftFlank, rightFlank, numericPrintingFlags);
     output.append("\n");
 }
 
@@ -1036,41 +1039,41 @@ void PrintBytes(/*inout*/ std::string& stringOutput, const void* binaryData, siz
     stringOutput.append("\n");
 }
 
-void PrintAllNumericTypesToBinary(
+void SprintAllNumericTypesToBinary(
     /*inout*/ std::string& stringOutput,
     NumberUnion const& numberUnion,
     NumericPrintingFlags numericPrintingFlags = NumericPrintingFlags::Default,
     ElementType numberElementType = ElementType::Undefined
 )
 {
-    constexpr std::string_view leftFlank = " -> ";
+    constexpr std::string_view leftFlank = "";
     constexpr std::string_view rightFlank = "";
 
     NumberUnionAndType input = {.numberUnion = numberUnion, .elementType = numberElementType};
     NumberUnionAndType output = {.numberUnion = numberUnion, .elementType = numberElementType};
     numericPrintingFlags = numericPrintingFlags & ~NumericPrintingFlags::ShowNumericValue;
 
-    output = CastNumberType(input, ElementType::Uint8 ); PrintNumericType(/*inout*/ stringOutput, ElementType::Uint8,  &output.numberUnion.ui8,  leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Uint16); PrintNumericType(/*inout*/ stringOutput, ElementType::Uint16, &output.numberUnion.ui16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Uint32); PrintNumericType(/*inout*/ stringOutput, ElementType::Uint32, &output.numberUnion.ui32, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Uint64); PrintNumericType(/*inout*/ stringOutput, ElementType::Uint64, &output.numberUnion.ui64, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Uint8 ); SprintNumericType(/*inout*/ stringOutput, ElementType::Uint8,  &output.numberUnion.ui8,  leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Uint16); SprintNumericType(/*inout*/ stringOutput, ElementType::Uint16, &output.numberUnion.ui16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Uint32); SprintNumericType(/*inout*/ stringOutput, ElementType::Uint32, &output.numberUnion.ui32, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Uint64); SprintNumericType(/*inout*/ stringOutput, ElementType::Uint64, &output.numberUnion.ui64, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
 
-    output = CastNumberType(input, ElementType::Int8 ); PrintNumericType(/*inout*/ stringOutput, ElementType::Int8,  &output.numberUnion.i8,  leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Int16); PrintNumericType(/*inout*/ stringOutput, ElementType::Int16, &output.numberUnion.i16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Int32); PrintNumericType(/*inout*/ stringOutput, ElementType::Int32, &output.numberUnion.i32, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Int64); PrintNumericType(/*inout*/ stringOutput, ElementType::Int64, &output.numberUnion.i64, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Int8 ); SprintNumericType(/*inout*/ stringOutput, ElementType::Int8,  &output.numberUnion.i8,  leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Int16); SprintNumericType(/*inout*/ stringOutput, ElementType::Int16, &output.numberUnion.i16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Int32); SprintNumericType(/*inout*/ stringOutput, ElementType::Int32, &output.numberUnion.i32, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Int64); SprintNumericType(/*inout*/ stringOutput, ElementType::Int64, &output.numberUnion.i64, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
 
-    output = CastNumberType(input, ElementType::Float16 ); PrintNumericType(/*inout*/ stringOutput, ElementType::Float16,  &output.numberUnion.f16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Bfloat16); PrintNumericType(/*inout*/ stringOutput, ElementType::Bfloat16, &output.numberUnion.f16m7e8s1, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Float32 ); PrintNumericType(/*inout*/ stringOutput, ElementType::Float32,  &output.numberUnion.f32, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Float64 ); PrintNumericType(/*inout*/ stringOutput, ElementType::Float64,  &output.numberUnion.f64, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Float16 ); SprintNumericType(/*inout*/ stringOutput, ElementType::Float16,  &output.numberUnion.f16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Bfloat16); SprintNumericType(/*inout*/ stringOutput, ElementType::Bfloat16, &output.numberUnion.f16m7e8s1, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Float32 ); SprintNumericType(/*inout*/ stringOutput, ElementType::Float32,  &output.numberUnion.f32, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Float64 ); SprintNumericType(/*inout*/ stringOutput, ElementType::Float64,  &output.numberUnion.f64, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
 
-    output = CastNumberType(input, ElementType::Fixed24f12i12); PrintNumericType(/*inout*/ stringOutput, ElementType::Fixed24f12i12, &output.numberUnion.x24f12i12, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Fixed32f16i16); PrintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f16i16, &output.numberUnion.x32f16i16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
-    output = CastNumberType(input, ElementType::Fixed32f24i8 ); PrintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f24i8,  &output.numberUnion.x32f24i8,  leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Fixed24f12i12); SprintNumericType(/*inout*/ stringOutput, ElementType::Fixed24f12i12, &output.numberUnion.x24f12i12, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Fixed32f16i16); SprintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f16i16, &output.numberUnion.x32f16i16, leftFlank, rightFlank, numericPrintingFlags, numberElementType);
+    output = CastNumberType(input, ElementType::Fixed32f24i8 ); SprintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f24i8,  &output.numberUnion.x32f24i8,  leftFlank, rightFlank, numericPrintingFlags, numberElementType);
 }
 
-void PrintAllNumericTypesFromBinary(
+void SprintAllNumericTypesFromBinary(
     /*inout*/ std::string& stringOutput,
     int64_t value,
     NumericPrintingFlags numericPrintingFlags = NumericPrintingFlags::Default,
@@ -1085,27 +1088,27 @@ void PrintAllNumericTypesFromBinary(
 
     numericPrintingFlags = numericPrintingFlags & ~NumericPrintingFlags::ShowBinaryValue;
 
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Uint8,  &numberUnion.ui8,  leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Uint16, &numberUnion.ui16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Uint32, &numberUnion.ui32, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Uint64, &numberUnion.ui64, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Uint8,  &numberUnion.ui8,  leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Uint16, &numberUnion.ui16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Uint32, &numberUnion.ui32, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Uint64, &numberUnion.ui64, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
 
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Int8,   &numberUnion.i8,  leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Int16,  &numberUnion.i16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Int32,  &numberUnion.i32, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Int64,  &numberUnion.i64, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Int8,   &numberUnion.i8,  leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Int16,  &numberUnion.i16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Int32,  &numberUnion.i32, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Int64,  &numberUnion.i64, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
 
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Float16,  &numberUnion.f16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Bfloat16, &numberUnion.f16m7e8s1,      leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Float32,  &numberUnion.f32, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Float64,  &numberUnion.f64, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Float16,  &numberUnion.f16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Bfloat16, &numberUnion.f16m7e8s1,      leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Float32,  &numberUnion.f32, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Float64,  &numberUnion.f64, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
 
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Fixed24f12i12, &numberUnion.x24f12i12, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f16i16, &numberUnion.x32f16i16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
-    PrintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f24i8,  &numberUnion.x32f24i8,  leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Fixed24f12i12, &numberUnion.x24f12i12, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f16i16, &numberUnion.x32f16i16, leftFlank, rightFlank, numericPrintingFlags, originalElementType);
+    SprintNumericType(/*inout*/ stringOutput, ElementType::Fixed32f24i8,  &numberUnion.x32f24i8,  leftFlank, rightFlank, numericPrintingFlags, originalElementType);
 }
 
-void PrintAllPrintingFormats(
+void SprintAllPrintingFormats(
     /*inout*/ std::string& stringOutput,
     double valueFloat,
     int64_t valueInteger,
@@ -1246,7 +1249,7 @@ void ParseNumber(
     }
 }
 
-void PrintAllNumbers(/*inout*/ std::string& stringOutput, Span<const NumberUnionAndType> numbers)
+void SprintAllNumbers(/*inout*/ std::string& stringOutput, Span<const NumberUnionAndType> numbers)
 {
     constexpr std::string_view leftFlank = " (";
     constexpr std::string_view rightFlank = ")";
@@ -1256,7 +1259,7 @@ void PrintAllNumbers(/*inout*/ std::string& stringOutput, Span<const NumberUnion
         if (number.elementType != ElementType::Undefined)
         {
             stringOutput.append("    ");
-            FormatNumericValue(/*inout*/ stringOutput, number.elementType, &number.numberUnion, leftFlank, rightFlank, number.printingFlags);
+            AppendFormattedNumericValue(/*inout*/ stringOutput, number.elementType, &number.numberUnion, leftFlank, rightFlank, number.printingFlags);
             stringOutput.append("\n");
         }
     }
@@ -1588,7 +1591,7 @@ void PerformNumericOperation(
 
 void PrintUsage()
 {
-    printf(
+    std::puts(
         "Usage:\n"
         "   binums 12.75  // floating point value in various formats\n"
         "   binums 0b1101  // read binary integer\n"
@@ -1972,7 +1975,7 @@ int main(int argc, char* argv[])
     int exitCode = ParseCommandLineParameters(argc, argv, /*out*/ operations, /*out*/ numbers, /*out*/ errorMessage);
     if (exitCode != EXIT_SUCCESS)
     {
-        puts(errorMessage.c_str());
+        std::puts(errorMessage.c_str());
         return exitCode;
     }
 
@@ -1987,7 +1990,7 @@ int main(int argc, char* argv[])
             // Print the operands.
             AppendFormatted(/*inout*/ stringOutput, "Operands to %s:\n", numericOperationName);
             Span<const NumberUnionAndType> span(numbers.data() + operation.range.begin, numbers.data() + operation.range.end);
-            PrintAllNumbers(/*inout*/ stringOutput, span);
+            SprintAllNumbers(/*inout*/ stringOutput, span);
 
             // Process the values.
             std::vector<NumberUnionAndType> operationResults(1);
@@ -1997,7 +2000,7 @@ int main(int argc, char* argv[])
 
             // Print the result.
             AppendFormatted(/*inout*/ stringOutput, "Result from %s:\n", numericOperationName);
-            PrintAllNumbers(/*inout*/ stringOutput, MakeSpan(operationResults));
+            SprintAllNumbers(/*inout*/ stringOutput, MakeSpan(operationResults));
             stringOutput.append("\n");
         }
     }
@@ -2009,18 +2012,18 @@ int main(int argc, char* argv[])
         int64_t valueInteger = ReadRawBitValue(numberUnion.elementType, &numberUnion.numberUnion);
 
         stringOutput.append("Representations:\n");
-        PrintAllPrintingFormats(/*inout*/ stringOutput, valueFloat, valueInteger, numberUnion.elementType);
+        SprintAllPrintingFormats(/*inout*/ stringOutput, valueFloat, valueInteger, numberUnion.elementType);
 
         stringOutput.append("\n" "To binary:\n");
-        PrintAllNumericTypesToBinary(/*inout*/ stringOutput, numberUnion.numberUnion, numberUnion.printingFlags, numberUnion.elementType);
+        SprintAllNumericTypesToBinary(/*inout*/ stringOutput, numberUnion.numberUnion, numberUnion.printingFlags, numberUnion.elementType);
 
         stringOutput.append("\n" "From binary:\n");
-        PrintAllNumericTypesFromBinary(/*inout*/ stringOutput, valueInteger, numberUnion.printingFlags, numberUnion.elementType);
+        SprintAllNumericTypesFromBinary(/*inout*/ stringOutput, valueInteger, numberUnion.printingFlags, numberUnion.elementType);
     }
     else if (!numbers.empty())
     {
         // If multiple numbers are given, print them all.
-        PrintAllNumbers(/*inout*/ stringOutput, Span<const NumberUnionAndType>(numbers.data(), numbers.size()));
+        SprintAllNumbers(/*inout*/ stringOutput, Span<const NumberUnionAndType>(numbers.data(), numbers.size()));
     }
 
     std::fputs(stringOutput.c_str(), stdout);
