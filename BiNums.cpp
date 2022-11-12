@@ -1939,20 +1939,8 @@ int ParseOperations(
     return EXIT_SUCCESS;
 }
 
-int ParseCommandLineParameters(
-    int argc,
-    char* argv[],
-    /*out*/ std::vector<NumericOperationAndRange>& operations,
-    /*out*/ std::vector<NumberUnionAndType>& numbers,
-    /*out*/ std::string& errorMessage
-)
+std::string ConcatenateCommandLineParameters(int argc, char* argv[])
 {
-    if (argc <= 1)
-    {
-        PrintUsage();
-        return EXIT_SUCCESS;
-    }
-
     std::string commandLine;
     for (size_t i = 1; i < size_t(argc); ++i)
     {
@@ -1963,16 +1951,22 @@ int ParseCommandLineParameters(
         commandLine.append(argv[i]);
     }
 
-    return ParseOperations(commandLine, /*out*/ operations, /*out*/ numbers, /*out*/ errorMessage);
+    return commandLine;
 }
 
-int main(int argc, char* argv[])
+int MainImplementation(std::string_view commandLine)
 {
+    if (commandLine.empty())
+    {
+        PrintUsage();
+        return EXIT_SUCCESS;
+    }
+
     std::vector<NumericOperationAndRange> operations;
     std::vector<NumberUnionAndType> numbers;
 
     std::string errorMessage;
-    int exitCode = ParseCommandLineParameters(argc, argv, /*out*/ operations, /*out*/ numbers, /*out*/ errorMessage);
+    int exitCode = ParseOperations(commandLine, /*out*/ operations, /*out*/ numbers, /*out*/ errorMessage);
     if (exitCode != EXIT_SUCCESS)
     {
         std::puts(errorMessage.c_str());
@@ -2029,4 +2023,15 @@ int main(int argc, char* argv[])
     std::fputs(stringOutput.c_str(), stdout);
 
     return EXIT_SUCCESS;
+}
+
+int main(int argc, char* argv[])
+{
+    // Standard C/C++ tries to be helpful by chopping up the arguments for us,
+    // but the general parsing function just accepts a string directly, which
+    // could come from other sources (like test cases). So restore the original
+    // single string.
+    std::string commandLine = ConcatenateCommandLineParameters(argc, argv);
+
+    return MainImplementation(commandLine);
 }
