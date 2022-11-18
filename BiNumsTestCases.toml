@@ -1,0 +1,38 @@
+# TODO: Use either:
+# https://marzer.github.io/tomlplusplus/ OR
+# https://github.com/ToruNiina/toml11
+
+# TOML was easier than JSON to avoid escaping a ton of newlines, but less angle brackety than XML.
+# If I find TOML requires me to nest too deeply or repea, I'll change it
+
+["All data types"]
+
+Input = 'uint8 42 int8 -42 uint16 42 int16 -42 uint32 42 int32 -42 uint64 42 int64 -42 fixed12_12 -42.25 fixed16_16 -42.25 fixed8_24 -42.25 float16 -42.25 float32 -42.25 float64 -42.25'
+Output = '''
+         uint8 42 (0x2A)
+          int8 -42 (0xD6)
+        uint16 42 (0x002A)
+         int16 -42 (0xFFD6)
+        uint32 42 (0x0000002A)
+         int32 -42 (0xFFFFFFD6)
+        uint64 42 (0x000000000000002A)
+         int64 -42 (0xFFFFFFFFFFFFFFD6)
+    fixed12_12 -42.25 (0xFD5C00)
+    fixed16_16 -42.25 (0xFFD5C000)
+     fixed8_24 -42.25 (0xD5C00000)
+       float16 -42.25 (0xD148)
+       float32 -42.25 (0xC2290000)
+       float64 -42.25 (0xC045200000000000)
+'''
+
+["Add numbers"]
+
+Input = 'add float32 10 -5 3'
+Output = '''
+Operands to add:
+       float32 10 (0x41200000)
+       float32 -5 (0xC0A00000)
+       float32 3 (0x40400000)
+Result from add:
+       float32 8 (0x41000000)
+'''
