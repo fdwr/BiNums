@@ -1,5 +1,5 @@
 ## BiNums - binary number viewer that displays numbers in various formats  
-2019-02-14..2021-02-24  
+2019-02-14..2022-11-17
 Dwayne Robinson  
 https://github.com/fdwr/BiNums  
 
