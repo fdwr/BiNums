@@ -21,9 +21,9 @@ https://github.com/fdwr/BiNums
 
 ## Options
 
-    showbinary showhex - display raw bits as binary or hex (default)
-    showhexfloat showdecfloat - display float as hex or decimal (default)
-    raw num - treat input as raw bit data or as number (default)
+    bin hex oct dec - display raw bits as binary/hex/octal/decimal (default=hex)
+    floathex floatdec - display float as hex or decimal (default=decimal)
+    raw num - treat input as raw bit data or as number (default=number)
     add subtract multiply divide dot - apply operation to following numbers
     float16 bfloat16 float32 float64 - set floating point data type
     uint8 uint16 uint32 uint64 int8 int16 int32 int64 - set integer data type
@@ -43,7 +43,7 @@ https://github.com/fdwr/BiNums
                bin 0b00000000000000000000000001111011
         fields bin int:0b0000000000000000000000001111011 sign:0b0
 
-    To binary:
+    As raw bits:
              uint8 0x7B
             uint16 0x007B
             uint32 0x0000007B
@@ -60,7 +60,7 @@ https://github.com/fdwr/BiNums
         fixed16_16 0x007B0000
          fixed8_24 0x7B000000
 
-    From binary:
+    As number:
              uint8 123
             uint16 123
             uint32 123
@@ -89,7 +89,7 @@ https://github.com/fdwr/BiNums
                bin 0b0100000000101001100000000000000000000000000000000000000000000000
         fields bin frac:0b1001100000000000000000000000000000000000000000000000 exp:0b10000000010 sign:0b0
 
-    To binary:
+    As raw bits:
              uint8 0x0C
             uint16 0x000C
             uint32 0x0000000C
@@ -106,7 +106,7 @@ https://github.com/fdwr/BiNums
         fixed16_16 0x000CC000
          fixed8_24 0x0CC00000
 
-    From binary:
+    As number:
              uint8 0
             uint16 0
             uint32 0
