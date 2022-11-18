@@ -3,7 +3,7 @@
 # https://github.com/ToruNiina/toml11
 
 # TOML was easier than JSON to avoid escaping a ton of newlines, but less angle brackety than XML.
-# If I find TOML requires me to nest too deeply or repea, I'll change it
+# If I find TOML requires me to nest too deeply, I'll change it, but it seems fine so far.
 
 ["All data types"]
 
