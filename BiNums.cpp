@@ -1689,6 +1689,7 @@ int ParseOperations(
                 break;
 
             case Hash("num"):
+            case Hash("number"):
                 parseAsRawData = false;
                 break;
 
@@ -1946,10 +1947,10 @@ int MainImplementation(std::string_view commandLine, std::string& stringOutput)
         stringOutput.append("Representations:\n");
         SprintAllPrintingFormats(/*inout*/ stringOutput, valueFloat, valueInteger, numberUnion.elementType);
 
-        stringOutput.append("\n" "To binary:\n");
+        stringOutput.append("\n" "As raw bits:\n");
         SprintAllNumericTypesToBinary(/*inout*/ stringOutput, numberUnion.numberUnion, numberUnion.printingFlags, numberUnion.elementType);
 
-        stringOutput.append("\n" "From binary:\n");
+        stringOutput.append("\n" "As number:\n");
         SprintAllNumericTypesFromBinary(/*inout*/ stringOutput, valueInteger, numberUnion.printingFlags, numberUnion.elementType);
     }
     else if (!numbers.empty())
