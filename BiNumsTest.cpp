@@ -111,7 +111,7 @@ bool CompareExpectedVsActual(
     SetConsoleTextAttribute(outputHandle, consoleScreenBufferInfo.wAttributes);
     #endif
 
-    printf("  %.*s\n", testTitle.size(), testTitle.data());
+    printf("  %.*s\n", (int)testTitle.size(), testTitle.data());
     if (!stringsMatch)
     {
         printf("        ");
