@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     std::string commandLine = ConcatenateCommandLineParameters(argc, argv);
 
     std::string stringOutput;
-    int exitCode = MainImplementation(commandLine, stringOutput);
+    int exitCode = MainImplementation(commandLine, /*out*/ stringOutput);
     std::fputs(stringOutput.c_str(), stdout);
 
     return exitCode;

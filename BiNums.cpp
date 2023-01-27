@@ -1895,7 +1895,7 @@ std::string ConcatenateCommandLineParameters(int argc, char* argv[])
     return commandLine;
 }
 
-int MainImplementation(std::string_view commandLine, std::string& stringOutput)
+int MainImplementation(std::string_view commandLine, /*out*/ std::string& stringOutput)
 {
     if (commandLine.empty())
     {
