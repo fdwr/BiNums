@@ -201,7 +201,7 @@ struct NumberUnionAndType
 {
     NumberUnion numberUnion;
     ElementType elementType;
-    NumericPrintingFlags printingFlags;
+    NumericPrintingFlags printingFlags = NumericPrintingFlags::Default;
 };
 
 struct NumericOperationAndRange
@@ -790,8 +790,8 @@ void AppendFormattedRawInteger(
                 --index;
                 uint32_t remainder = static_cast<uint32_t>(value % radix); // Note std::div doesn't support uint64_t.
                 value /= radix;
-                char c = remainder <= 10 ? ('0' + remainder) : ('A' + remainder - 10);
-                stringValue[index] = c;
+                char32_t wc = remainder <= 10 ? ('0' + remainder) : ('A' + remainder - 10);
+                stringValue[index] = static_cast<char>(wc);
             }
         }
         break;
