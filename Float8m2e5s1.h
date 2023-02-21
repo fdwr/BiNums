@@ -8,7 +8,7 @@
 
 #pragma once
 
-using float8m2e5s1_t = FloatNumber<uint8_t, 2, 5, true, true, true>;
+using float8m2e5s1_t = FloatNumber<uint8_t, 2, 5, true, true, true, true>;
 
 inline float8m2e5s1_t operator +(float8m2e5s1_t a, float8m2e5s1_t b) noexcept { return float(a) + float(b); }
 inline float8m2e5s1_t operator -(float8m2e5s1_t a, float8m2e5s1_t b) noexcept { return float(a) - float(b); }

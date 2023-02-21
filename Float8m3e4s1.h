@@ -8,7 +8,7 @@
 
 #pragma once
 
-using float8m3e4s1_t = FloatNumber<uint8_t, 3, 4, true, true, true>;
+using float8m3e4s1_t = FloatNumber<uint8_t, 3, 4, true, true, false, true>; // No infinity and one NaN representation (S1111.111).
 
 inline float8m3e4s1_t operator +(float8m3e4s1_t a, float8m3e4s1_t b) noexcept { return float(a) + float(b); }
 inline float8m3e4s1_t operator -(float8m3e4s1_t a, float8m3e4s1_t b) noexcept { return float(a) - float(b); }

@@ -113,6 +113,8 @@ union NumberUnion
     int16_t         i16;
     int32_t         i32;
     int64_t         i64;
+    float8m3e4s1_t  f3e4s1;
+    float8m2e5s1_t  f2e5s1;
     float16_t       f16;
     float16m7e8s1_t f16m7e8s1;
     float32_t       f32;
@@ -148,7 +150,9 @@ enum class ElementType : uint32_t
     Fixed24f12i12 = 17, // TODO: Make naming more consistent. Fixed24f12i12 vs Fixed12_12
     Fixed32f16i16 = 18,
     Fixed32f24i8 = 19,
-    Total = 20,
+    Float8m2e5s1 = 20, // mantissa:2 exponent:5 sign:1
+    Float8m3e4s1 = 21, // mantissa:3 exponent:4 sign:1
+    Total = 22,
 };
 
 enum class NumericOperationType : uint32_t
@@ -237,6 +241,20 @@ struct NumberSubstructure
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const char* g_numericOperationTypeNames[] =
+{
+    "none",
+    "nothing",
+    "nop",
+    "add",
+    "subtract",
+    "multiply",
+    "divide",
+    "dot",
+    "truncate",
+};
+static_assert(int(NumericOperationType::Total) == 9 && std::size(g_numericOperationTypeNames) == 9);
+
 const char* g_elementTypeNames[] =
 {
     "undefined",    // Undefined = 0,
@@ -259,22 +277,10 @@ const char* g_elementTypeNames[] =
     "fixed12_12",   // Fixed24f12i12 = 17,
     "fixed16_16",   // Fixed32f16i16 = 18,
     "fixed8_24",    // Fixed32f24i8 = 19,
+    "float8f3e4s1", // Float8f3e4s1 = 20,
+    "float8f2e5s1", // Float8f2e5s1 = 21,
 };
-static_assert(int(ElementType::Total) == 20 && std::size(g_elementTypeNames) == 20);
-
-const char* g_numericOperationTypeNames[] =
-{
-    "none",
-    "nothing",
-    "nop",
-    "add",
-    "subtract",
-    "multiply",
-    "divide",
-    "dot",
-    "truncate",
-};
-static_assert(int(NumericOperationType::Total) == 9 && std::size(g_numericOperationTypeNames) == 9);
+static_assert(int(ElementType::Total) == 22 && std::size(g_elementTypeNames) == 22);
 
 const static uint8_t g_byteSizeOfElementType[] =
 {
@@ -298,8 +304,10 @@ const static uint8_t g_byteSizeOfElementType[] =
     3,  // Fixed24f12i12 = 17,
     4,  // Fixed32f16i16 = 18,
     4,  // Fixed32f24i8 = 19,
+    1,  // Float8f3e4s1 = 20,
+    1,  // Float8f2e5s1 = 21,
 };
-static_assert(int(ElementType::Total) == 20 && std::size(g_byteSizeOfElementType) == 20);
+static_assert(int(ElementType::Total) == 22 && std::size(g_byteSizeOfElementType) == 22);
 
 const static uint8_t g_isFractionalElementType[] =
 {
@@ -320,11 +328,13 @@ const static uint8_t g_isFractionalElementType[] =
     true , // Complex64 = 14,
     true , // Complex128 = 15,
     true , // Float16m7e8s1 = 16,
-    true,  // Fixed24f12i12 = 17,
-    true,  // Fixed32f16i16 = 18,
-    true,  // Fixed32f24i8 = 19,
+    true , // Fixed24f12i12 = 17,
+    true , // Fixed32f16i16 = 18,
+    true , // Fixed32f24i8 = 19,
+    true , // Float8f3e4s1 = 20,
+    true , // Float8f2e5s1 = 21,
 };
-static_assert(int(ElementType::Total) == 20 && std::size(g_isFractionalElementType) == 20);
+static_assert(int(ElementType::Total) == 22 && std::size(g_isFractionalElementType) == 22);
 
 const static uint8_t g_isSignedElementType[] =
 {
@@ -348,8 +358,10 @@ const static uint8_t g_isSignedElementType[] =
     true , // Fixed24f12i12 = 17,
     true , // Fixed32f16i16 = 18,
     true , // Fixed32f24i8 = 19,
+    true , // Float8f3e4s1 = 20,
+    true , // Float8f2e5s1 = 21,
 };
-static_assert(int(ElementType::Total) == 20 && std::size(g_isSignedElementType) == 20);
+static_assert(int(ElementType::Total) == 22 && std::size(g_isSignedElementType) == 22);
 
 // ElementType enum reordered by priority of promotion rules.
 enum class ElementTypePriority : uint32_t
@@ -376,6 +388,8 @@ enum class ElementTypePriority : uint32_t
     Float64,
     Complex64,
     Complex128,
+    Float8f3e4s1,
+    Float8f2e5s1,
     Total,
 };
 static_assert(size_t(ElementType::Total) == size_t(ElementTypePriority::Total));
@@ -402,6 +416,8 @@ const ElementTypePriority g_elementTypePriorityTable[] = // The index is an Elem
     /* Fixed24f12i12 = 17  */ ElementTypePriority::Fixed24f12i12,
     /* Fixed32f16i16 = 18  */ ElementTypePriority::Fixed32f16i16,
     /* Fixed32f24i8 = 19   */ ElementTypePriority::Fixed32f24i8,
+    /* Float8f3e4s1 = 20   */ ElementTypePriority::Float8f3e4s1,
+    /* Float8f2e5s1 = 21   */ ElementTypePriority::Float8f2e5s1,
 };
 static_assert(std::size(g_elementTypePriorityTable) == size_t(ElementType::Total));
 
@@ -428,6 +444,8 @@ const NumberSubstructure g_elementTypeSubstructures[] = // The index is an Eleme
     /* Fixed24f12i12 = 17  */ {{ 0,12},{12,24},{ 0, 0},{ 0, 0}},
     /* Fixed32f16i16 = 18  */ {{ 0,16},{16,32},{ 0, 0},{ 0, 0}},
     /* Fixed32f24i8 = 19   */ {{ 0, 8},{ 8,32},{ 0, 0},{ 0, 0}},
+    /* Float8f3e4s1 = 20   */ {{ 0, 3},{ 0, 0},{ 3, 7},{ 7, 8}},
+    /* Float8f2e5s1 = 21   */ {{ 0, 2},{ 0, 0},{ 2, 7},{ 7, 8}},
 };
 static_assert(std::size(g_elementTypeSubstructures) == size_t(ElementType::Total));
 
@@ -622,7 +640,7 @@ void WriteFromInt64(ElementType dataType, int64_t value, /*out*/ void* data)
     case ElementType::Fixed24f12i12: *reinterpret_cast<Fixed24f12i12*>(data) = float(value);            break;
     case ElementType::Fixed32f16i16: *reinterpret_cast<Fixed32f16i16*>(data) = float(value);            break;
     case ElementType::Fixed32f24i8:  *reinterpret_cast<Fixed32f24i8*>(data) = float(value);             break;
-    default:                            assert(false);                                              break;
+    default:                         assert(false);                                                     break;
     }
 }
 
@@ -650,7 +668,7 @@ void CastElementType(ElementType dataType, void const* inputData, /*out*/ void* 
     case ElementType::Fixed24f12i12: *reinterpret_cast<Fixed24f12i12*>(outputData) = *reinterpret_cast<const Fixed24f12i12*>(inputData);  break;
     case ElementType::Fixed32f16i16: *reinterpret_cast<uint32_t*>(outputData)   = *reinterpret_cast<const uint32_t*>(inputData);    break;
     case ElementType::Fixed32f24i8:  *reinterpret_cast<uint32_t*>(outputData)   = *reinterpret_cast<const uint32_t*>(inputData);    break;
-    default:                            assert(false);                                              break;
+    default:                         assert(false);                                                                                 break;
     }
 }
 

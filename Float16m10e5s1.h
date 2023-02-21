@@ -15,7 +15,7 @@
 
 #if 0 // TODO: Enable after adding test cases.
 
-using float16m10e5s1_t = FloatNumber<uint16_t, 10, 5, true, true, true>;
+using float16m10e5s1_t = FloatNumber<uint16_t, 10, 5, true, true, true, true>;
 
 #else
 

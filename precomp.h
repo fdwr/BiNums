@@ -14,7 +14,8 @@
 #include "FixedNumber.h"
 #include "FloatNumber.h"
 #include "Float16m7e8s1.h"
-
+#include "Float8m3e4s1.h"
+#include "Float8m2e5s1.h"
 #include "Common.h"
 
 using float32_t = float;

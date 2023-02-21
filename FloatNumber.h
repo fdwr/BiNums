@@ -1,4 +1,11 @@
 //-----------------------------------------------------------------------------
+//  General floating point struct with arbitrary bit allocations.
+//  Limitations:
+//  - no math implementations, just casting from/to standard float types.
+//  - binary exponents (no exponents with decimal or hexademical bases).
+//  - zero-point bias is only IEEE-style, half the exponent range minus one (e^2 - 1, so 127 for 8-bit exponent).
+//  - bit field order in increasing order is always: fraction, exponent, sign. (no odd orderings like exponent, sign, fraction)
+//  - hidden one is implicit IEEE-style (some rare float formats explicitly store ones in the fraction part and adjust exponent).
 //
 //  The typical 'half' float16 data type (IEEE 754-2008) uses the following bit
 //  allocation: mantissa:10 exponent:5 sign:1.
@@ -14,128 +21,179 @@
 
 namespace FloatNumberDetails
 {
-
-template <
-    typename BaseIntegerType,
-    unsigned int FractionBitCount,
-    unsigned int ExponentBitCount,
-    bool HasSign,
-    bool HasSubnormals,
-    bool HasInfinity
->
-struct FloatDefinition
-{
-    // The warning is bogus, since the shift result is not actually used in such a case.
-#ifdef _MSC_VER
-    #pragma warning(push)
-    #pragma warning(disable : 4293) // '<<': shift count negative or too big, undefined behavior
-#endif
-
-    using baseIntegerType = BaseIntegerType;
-
-    static constexpr BaseIntegerType SafeLeftShift(BaseIntegerType value, uint32_t shift)
+    // Full definition of a floating point representation.
+    // Defined outside FloatNumber so it's not dependent on FloatNumber's template parameters.
+    template <
+        typename BaseIntegerType,
+        unsigned int FractionBitCount,
+        unsigned int ExponentBitCount,
+        bool HasSign,
+        bool HasSubnormals,
+        bool HasInfinity,
+        bool HasNan
+    >
+    struct FloatDefinition
     {
-        // This weird split shift (1 << (x - 1) << 1) instead of just (1 << x) is to avoid the unfortunate x86 shift wrap around bug -__-.
-        return (shift > 0) ? (value << (shift - 1) << 1) : value;
-    }
+        // The warning is bogus, since the shift result is not actually used in such a case.
+    #ifdef _MSC_VER
+        #pragma warning(push)
+        #pragma warning(disable : 4293) // '<<': shift count negative or too big, undefined behavior
+    #endif
 
-    static constexpr unsigned int fractionBitCount              = FractionBitCount;
-    static constexpr unsigned int exponentBitCount              = ExponentBitCount;
-    static constexpr bool hasSubnormals                         = HasSubnormals;
-    static constexpr bool hasInfinity                           = HasInfinity;
-    static constexpr bool hasSign                               = HasSign;
+        using baseIntegerType = BaseIntegerType;
 
-    static constexpr uint32_t totalBitCount                     = sizeof(BaseIntegerType) * CHAR_BIT;
-    static constexpr uint32_t fractionBitOffset                 = 0;
-    static constexpr uint32_t signBitOffset                     = HasSign ? totalBitCount - 1 : 0; // Sign bit is always at top, if present.
-    static constexpr uint32_t exponentBitOffset                 = FractionBitCount; // Exponent starts immediately after fraction bits.
-    static constexpr int32_t  exponentMin                       = 0;
-    static constexpr int32_t  exponentMax                       = ExponentBitCount ? (1u << ExponentBitCount) - 1 : 0;
-    static constexpr int32_t  exponentBias                      = ExponentBitCount ? (1u << (ExponentBitCount - 1)) - 1 : 0;
-    static constexpr BaseIntegerType zero                       = BaseIntegerType(0);
-    static constexpr BaseIntegerType ulp                        = BaseIntegerType(1); // Unit last lace.
-    static constexpr BaseIntegerType signMask                   = (HasSign ? ulp : zero) << signBitOffset;
-    static constexpr BaseIntegerType fractionMask               = SafeLeftShift(ulp, FractionBitCount) - 1;
-    static constexpr BaseIntegerType exponentMask               = SafeLeftShift(ulp, FractionBitCount + ExponentBitCount) - SafeLeftShift(ulp, FractionBitCount);
-    static constexpr BaseIntegerType fractionAndExponentMask    = fractionMask | exponentMask;
-    static constexpr BaseIntegerType maximumLegalValue          = HasInfinity ? exponentMask : fractionAndExponentMask; // Clamp to positive infinity and max bit value.
-#ifdef _MSC_VER
-    #pragma warning(pop)
-#endif
-};
-
-// Minihelper shifts left if positive (right if negative).
-template <typename T>
-T constexpr LeftRightShift(T t, int32_t shift) noexcept
-{
-    return (shift >= 0) ? (t << shift) : (t >> -shift);
-}
-
-template <typename SourceFloatDefinition, typename TargetFloatDefinition>
-static constexpr typename TargetFloatDefinition::baseIntegerType ConvertRawFloatType(typename SourceFloatDefinition::baseIntegerType sourceValue) noexcept
-{
-    // Shift the fraction, exponent, and sign from their respective locations in the float32
-    // to the target type.
-    // Sature the exponent if greater than can be represented.
-    // Flush subnormals to zero if denorms are not supported.
-
-    using Source = SourceFloatDefinition;
-    using Target = TargetFloatDefinition;
-    using IntermediateType = std::conditional_t<(Source::totalBitCount > Target::totalBitCount), typename Source::baseIntegerType, typename Target::baseIntegerType>;
-
-    if (Target::exponentBitCount == Source::exponentBitCount && Target::hasSign == Source::hasSign)
-    {
-        // Optimized path can just shift. This applies to bfloat16 <-> IEEE float32.
-        IntermediateType const sourceIntermediate = IntermediateType(sourceValue);
-        IntermediateType const targetValue = LeftRightShift(sourceIntermediate, Target::totalBitCount - Source::totalBitCount);
-        return TargetFloatDefinition::baseIntegerType(targetValue);
-    }
-    else // More complex path.
-    {
-        // TODO: Consider rounding when converting to smaller fraction bit count, rather than just truncating them.
-        IntermediateType constexpr exponentAdjustment = IntermediateType(Target::exponentBias - Source::exponentBias) << Target::fractionBitCount;
-        IntermediateType const sourceSign = IntermediateType(sourceValue & Source::signMask);
-        IntermediateType const targetSign = LeftRightShift(sourceSign, Target::signBitOffset - Source::signBitOffset);
-        IntermediateType const sourceFractionAndExponent = IntermediateType(sourceValue & Source::fractionAndExponentMask);
-        IntermediateType const unadjustedFractionAndExponent = LeftRightShift(sourceFractionAndExponent, Target::fractionBitCount - Source::fractionBitCount);
-        IntermediateType targetFractionAndExponent = unadjustedFractionAndExponent + exponentAdjustment;
-        bool constexpr targetHasSmallerExponent = Target::exponentBitCount < Source::exponentBitCount;
-
-        if ((targetHasSmallerExponent  && targetFractionAndExponent > unadjustedFractionAndExponent) // Underflow
-        ||  (!targetHasSmallerExponent && targetFractionAndExponent < unadjustedFractionAndExponent) // Underflow
-        ||  (!Target::hasSubnormals && targetFractionAndExponent <= Target::fractionMask)) // Flush subnormals to zero
+        static constexpr BaseIntegerType SafeLeftShift(BaseIntegerType value, uint32_t shift)
         {
-            targetFractionAndExponent = 0;
-        }
-        else if (targetFractionAndExponent > Target::maximumLegalValue)
-        {
-            // Check positive saturation to avoid NaN (if infinity supported) or overflow (if no inifinity).
-            targetFractionAndExponent = Target::maximumLegalValue;
+            // This weird split shift (1 << (x - 1) << 1) instead of just (1 << x) is to avoid the unfortunate x86 shift wrap around bug -__-.
+            return (shift > 0) ? (value << (shift - 1) << 1) : value;
         }
 
-        IntermediateType targetValue = targetFractionAndExponent | targetSign;
-        return TargetFloatDefinition::baseIntegerType(targetValue);
+        static constexpr const unsigned int fractionBitCount              = FractionBitCount;
+        static constexpr const unsigned int exponentBitCount              = ExponentBitCount;
+        static constexpr const bool hasSign                               = HasSign;
+        static constexpr const bool hasSubnormals                         = HasSubnormals;
+        static constexpr const bool hasInfinity                           = HasInfinity;
+        static constexpr const bool hasNan                                = HasNan;
+
+        static constexpr const uint32_t totalBitCount                     = sizeof(BaseIntegerType) * CHAR_BIT;
+        static constexpr const uint32_t fractionBitOffset                 = 0;
+        static constexpr const uint32_t signBitOffset                     = HasSign ? totalBitCount - 1 : 0; // Sign bit is always at top, if present.
+        static constexpr const uint32_t exponentBitOffset                 = FractionBitCount; // Exponent starts immediately after fraction bits.
+        static constexpr const int32_t  exponentMin                       = 0;
+        static constexpr const int32_t  exponentMax                       = ExponentBitCount ? (1u << ExponentBitCount) - 1 : 0;
+        static constexpr const int32_t  exponentBias                      = ExponentBitCount ? (1u << (ExponentBitCount - 1)) - 1 : 0;
+        static constexpr const BaseIntegerType zero                       = BaseIntegerType(0);
+        static constexpr const BaseIntegerType ulp                        = BaseIntegerType(1); // Unit last place.
+        static constexpr const BaseIntegerType signMask                   = (HasSign ? ulp : zero) << signBitOffset;
+        static constexpr const BaseIntegerType fractionMask               = SafeLeftShift(ulp, FractionBitCount) - 1;
+        static constexpr const BaseIntegerType exponentMask               = SafeLeftShift(ulp, FractionBitCount + ExponentBitCount) - SafeLeftShift(ulp, FractionBitCount);
+        static constexpr const BaseIntegerType fractionAndExponentMask    = fractionMask | exponentMask;
+        static constexpr const BaseIntegerType maximumLegalBitValue       = (!HasInfinity && !HasNan) ? fractionAndExponentMask // Max value is saturated to all 1's.
+                                                                          : ( HasInfinity && !HasNan) ? fractionAndExponentMask // Max value is saturated to all 1's.
+                                                                          : (!HasInfinity &&  HasNan) ? fractionAndExponentMask - 1 // NaN is all 1's. So one less than that.
+                                                                          : /*HasInfinity && HasNan  */ exponentMask; // Fully saturated exponent, but no fraction bits (which would be NaN).
+        static constexpr const BaseIntegerType minimumNanBitValue         = !HasNan        ? 0
+                                                                          : HasInfinity    ? exponentMask + 1 // First NaN starts right after infinity
+                                                                          : /*!HasInfinity*/ fractionAndExponentMask; // NaN is all 1's.
+        static constexpr const BaseIntegerType quietNanMask               = HasNan ? (fractionMask ^ (fractionMask >> 1)) : 0; // Clear all bits below the top one.
+    #ifdef _MSC_VER
+        #pragma warning(pop)
+    #endif
+    }; // FloatDefinition
+
+    using Float8f3e4s1Definition    = FloatDefinition<uint8_t, 3, 4, true, true, false, true>; // No infinity and one NaN representation (S1111.111).
+    using Float8f2e5s1Definition    = FloatDefinition<uint8_t, 2, 5, true, true, true, true>;
+    using Float16Definition         = FloatDefinition<uint32_t, 10, 5, true, true, true, true>;
+    using Float32Definition         = FloatDefinition<uint32_t, 23, 8, true, true, true, true>;
+    using Float64Definition         = FloatDefinition<uint64_t, 52, 11, true, true, true, true>;
+    using Float16f10e5s1Definition  = FloatDefinition<uint16_t, 10, 5, true, true, true, true>;
+    // using Float128Definition = FloatDefinition<uint128_t, 112, 15, true, true, true>; Most compilers lack a uint128_t.
+
+    // Minihelper shifts left if positive (right if negative).
+    template <typename T>
+    inline T constexpr LeftRightShift(T t, int32_t shift) noexcept
+    {
+        return (shift >= 0) ? (t << shift) : (t >> -shift);
     }
-}
+
+    template <typename SourceFloatDefinition, typename TargetFloatDefinition>
+    static constexpr typename TargetFloatDefinition::baseIntegerType ConvertRawFloatType(typename SourceFloatDefinition::baseIntegerType sourceValue) noexcept
+    {
+        // Shift the fraction, exponent, and sign from their respective locations in the float32
+        // to the target type.
+        // Sature the exponent if greater than can be represented.
+        // Flush subnormals to zero if denorms are not supported.
+
+        using Source = SourceFloatDefinition;
+        using Target = TargetFloatDefinition;
+        using IntermediateType = std::conditional_t<(Source::totalBitCount > Target::totalBitCount), typename Source::baseIntegerType, typename Target::baseIntegerType>;
+
+        if (Target::exponentBitCount == Source::exponentBitCount && Target::hasSign == Source::hasSign)
+        {
+            // Optimized path can just shift. This applies to bfloat16 <-> IEEE float32.
+            IntermediateType const sourceIntermediate = IntermediateType(sourceValue);
+            IntermediateType const targetValue = LeftRightShift(sourceIntermediate, int32_t(Target::totalBitCount - Source::totalBitCount));
+            return TargetFloatDefinition::baseIntegerType(targetValue);
+        }
+        else // More complex path.
+        {
+            // TODO: Consider rounding when converting to smaller fraction bit count, rather than just truncating them.
+            int32_t constexpr sourceToTargetShift = int32_t(Target::fractionBitCount - Source::fractionBitCount);
+            IntermediateType constexpr exponentAdjustment = IntermediateType(Target::exponentBias - Source::exponentBias) << Target::fractionBitCount;
+            IntermediateType const sourceSign = IntermediateType(sourceValue & Source::signMask);
+            IntermediateType const targetSign = LeftRightShift(sourceSign, Target::signBitOffset - Source::signBitOffset);
+            IntermediateType const sourceFractionAndExponent = IntermediateType(sourceValue & Source::fractionAndExponentMask);
+            IntermediateType const unadjustedFractionAndExponent = LeftRightShift(sourceFractionAndExponent, sourceToTargetShift);
+            IntermediateType targetFractionAndExponent = unadjustedFractionAndExponent + exponentAdjustment;
+            bool constexpr targetHasSmallerExponent = Target::exponentBitCount < Source::exponentBitCount;
+
+            // Preserve NaN when both source and target have the property.
+            // If only source or destination has NaN, fall through to saturation below.
+            // NaN is defined is having the maximum exponent and a nonzero fraction.
+            // So the fraction-and-exponent bit value is greater than the exponent mask alone.
+            if (Source::hasNan && Target::hasNan && (sourceFractionAndExponent >= Source::minimumNanBitValue))
+            {
+                // Preserve the remaining NaN payload, but ensure the quiet bit is set.
+                targetFractionAndExponent = (targetFractionAndExponent & Target::fractionMask) | Target::minimumNanBitValue | Target::quietNanMask;
+            }
+            else if (Source::hasInfinity && Target::hasInfinity && (sourceFractionAndExponent == Source::maximumLegalBitValue))
+            {
+                // Just set target to infinity, using the largest value that isn't NaN.
+                targetFractionAndExponent = Target::maximumLegalBitValue;
+            }
+            else if (
+                (sourceFractionAndExponent == 0)
+            ||  (targetHasSmallerExponent && targetFractionAndExponent > unadjustedFractionAndExponent) // Underflow
+            ||  (!targetHasSmallerExponent && targetFractionAndExponent < unadjustedFractionAndExponent) // Underflow
+            ||  (!Target::hasSubnormals && targetFractionAndExponent <= Target::fractionMask) // Flush subnormals to zero
+                )
+            {
+                targetFractionAndExponent = 0;
+            }
+            else if (targetFractionAndExponent > Target::maximumLegalBitValue)
+            {
+                // Saturate to maximal positive value just before NaN.
+                targetFractionAndExponent = Target::maximumLegalBitValue;
+            }
+
+            IntermediateType targetValue = targetFractionAndExponent | targetSign;
+            return TargetFloatDefinition::baseIntegerType(targetValue);
+        }
+    }
 
 } // namespace FloatNumberDetails
 
+
+// Generic FloatNumber type.
+//
+// FloatNumber<uint16_t, 10, 5, true, true, true, true> - IEEE float16
+// FloatNumber<uint32_t, 23, 8, true, true, true, true> - IEEE float32
+// FloatNumber<uint64_t, 52, 11, true, true, true, true> - IEEE float64
+// FloatNumber<uint16_t, 10, 6, false, true, true, true> - float with no sign and wider range
+// FloatNumber<uint64_t, 48, 16, false, true, true, true> - no sign bit, larger exponent than float64
+// 
+// TODO: Make atypical cases like no exponent or no fraction also work.
+//                              sign  subnm inf
+// FloatNumber<uint32_t, 0, 31, true, true, true>
+// FloatNumber<uint32_t, 31, 0, true, true, true>
+//
+// constexpr float testNumbers[] = {0.0f, 1.0f, -1.0f, 0.5f, -0.5f, 65504.0f, -65504.0f, 16777216.0f, -16777216.0f, std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::quiet_NaN(), -std::numeric_limits<float>::infinity()};
+//
 template <
     typename BaseIntegerType, // e.g. uint32_t, uint64_t
     unsigned int FractionBitCount,
     unsigned int ExponentBitCount,
     bool HasSign,
     bool HasSubnormals,
-    bool HasInfinity
+    bool HasInfinity,
+    bool HasNan
 >
 struct FloatNumber
 {
-    BaseIntegerType value;
+    using Self = FloatNumber<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity, HasNan>;
+    using SelfDefinition = FloatNumberDetails::FloatDefinition<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity, HasNan>;
 
-    using Self = FloatNumber<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity>;
-    using FloatDefinition = FloatNumberDetails::FloatDefinition<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity>;
-    using Float32Definition = FloatNumberDetails::FloatDefinition<uint32_t, 23, 8, true, true, true>;
-    using Float64Definition = FloatNumberDetails::FloatDefinition<uint64_t, 52, 8, true, true, true>;
+    BaseIntegerType value;
 
     FloatNumber() = default;
     FloatNumber(const FloatNumber&) = default;
@@ -143,7 +201,12 @@ struct FloatNumber
 
     constexpr FloatNumber(float floatValue) noexcept
     {
-        value = FloatNumberDetails::ConvertRawFloatType<Float32Definition, FloatDefinition>(reinterpret_cast<uint32_t&>(floatValue));
+        value = FloatNumberDetails::ConvertRawFloatType<FloatNumberDetails::Float32Definition, SelfDefinition>(reinterpret_cast<uint32_t&>(floatValue));
+    }
+
+    constexpr FloatNumber(double floatValue) noexcept
+    {
+        value = FloatNumberDetails::ConvertRawFloatType<FloatNumberDetails::Float64Definition, SelfDefinition>(reinterpret_cast<uint64_t&>(floatValue));
     }
 
     constexpr FloatNumber& operator =(const FloatNumber&) noexcept = default;
@@ -154,10 +217,23 @@ struct FloatNumber
         return *this;
     }
 
+    constexpr inline FloatNumber& operator =(double floatValue) noexcept
+    {
+        new(this) FloatNumber(floatValue);
+        return *this;
+    }
+
     constexpr operator float() const noexcept
     {
         float floatValue;
-        reinterpret_cast<uint32_t&>(floatValue) = FloatNumberDetails::ConvertRawFloatType<FloatDefinition, Float32Definition>(value);
+        reinterpret_cast<uint32_t&>(floatValue) = FloatNumberDetails::ConvertRawFloatType<SelfDefinition, FloatNumberDetails::Float32Definition>(value);
+        return floatValue;
+    }
+
+    constexpr operator double() const noexcept
+    {
+        double floatValue;
+        reinterpret_cast<uint64_t&>(floatValue) = FloatNumberDetails::ConvertRawFloatType<SelfDefinition, FloatNumberDetails::Float64Definition>(value);
         return floatValue;
     }
 
@@ -170,16 +246,4 @@ struct FloatNumber
     {
         value = newValue;
     }
-
-    // constexpr float testNumbers[] = {0.0f, 1.0f, -1.0f, 0.5f, -0.5f, 65504.0f, -65504.0f, 16777216.0f, -16777216.0f, std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::quiet_NaN(), -std::numeric_limits<float>::infinity()};
-
-    // FloatNumber<uint16_t, 10, 5, true, true, true> - IEEE float16
-    // FloatNumber<uint32_t, 23, 8, true, true, true> - IEEE float32
-    // FloatNumber<uint64_t, 52, 11, true, true, true> - IEEE float64
-    // FloatNumber<uint16_t, 10, 6, false, true, true> - float with no sign and wider range
-    // FloatNumber<uint64_t, 48, 16, false, true, true> - no sign bit, larger exponent than float64
-    // 
-    // TODO: Make atypical cases like no exponent or fraction also work.
-    // FloatNumber<uint32_t, 0, 31, true, true, true>
-    // FloatNumber<uint32_t, 31, 0, true, true, true>
-};
+}; // FloatNumber
