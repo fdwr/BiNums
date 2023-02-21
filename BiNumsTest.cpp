@@ -206,8 +206,8 @@ bool VerifyFloatingTypes()
        -1.0f,
         0.5f,
        -0.5f,
-        224.0f,
-       -224.0f,
+        224.0f, // Maximum value
+       -224.0f, // Maximum value
         std::numeric_limits<float>::quiet_NaN(),
        -std::numeric_limits<float>::quiet_NaN(),
         std::numeric_limits<float>::infinity(),
@@ -219,8 +219,8 @@ bool VerifyFloatingTypes()
        -1.0f,
         0.5f,
        -0.5f,
-        65504.0f,
-       -65504.0f,
+        65504.0f, // Maximum precise value
+       -65504.0f, // Maximum precise value
         std::numeric_limits<float>::quiet_NaN(),
        -std::numeric_limits<float>::quiet_NaN(),
         std::numeric_limits<float>::infinity(),
@@ -232,8 +232,8 @@ bool VerifyFloatingTypes()
        -1.0f,
         0.5f,
        -0.5f,
-        65280.0f,
-       -65280.0f,
+        65280.0f, // Maximum value
+       -65280.0f, // Maximum value
         std::numeric_limits<float>::quiet_NaN(),
        -std::numeric_limits<float>::quiet_NaN(),
         std::numeric_limits<float>::infinity(),
@@ -247,8 +247,8 @@ bool VerifyFloatingTypes()
        -0.5,
         65504.0,
        -65504.0,
-        16777216.0,
-       -16777216.0,
+        16777216.0, // Maximum precise value
+       -16777216.0, // Maximum precise value
         std::numeric_limits<float>::min(),
        -std::numeric_limits<float>::min(),
         std::numeric_limits<float>::max(),
