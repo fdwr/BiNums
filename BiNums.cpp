@@ -1599,6 +1599,7 @@ std::string_view GetIdentifier(std::string_view s)
             || (ch >= 'a' && ch <= 'z')
             || (ch == '.')
             || (ch == '-')
+            || (ch == '+')
             || (ch == '_');
     };
 
