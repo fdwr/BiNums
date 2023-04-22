@@ -102,6 +102,16 @@ using Fixed24f12i12 = FixedNumber<int24_t, 12, 12>;
 using Fixed32f16i16 = FixedNumber<int32_t, 16, 16>;
 using Fixed32f24i8  = FixedNumber<int32_t, 8, 24>;
 
+// TODO: Support all these from:
+// https://onnx.ai/onnx/technical/float8.html
+// https://github.com/onnx/onnx/blob/main/onnx/reference/custom_element_types.py
+//
+// bfloat16 = np.dtype((np.uint16, {"bfloat16": (np.uint16, 0)}))
+// float8e4m3fn = np.dtype((np.uint8, {"e4m3fn": (np.uint8, 0)}))
+// float8e4m3fnuz = np.dtype((np.uint8, {"e4m3fnuz": (np.uint8, 0)}))
+// float8e5m2 = np.dtype((np.uint8, {"e5m2": (np.uint8, 0)}))
+// float8e5m2fnuz = np.dtype((np.uint8, {"e5m2fnuz": (np.uint8, 0)}))
+
 union NumberUnion
 {
     uint8_t         buffer[8];
