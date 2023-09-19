@@ -19,7 +19,10 @@
 
 #pragma once
 
-namespace FloatNumberDetails
+#include <stdint.h>
+#include "Int24.h"
+
+namespace FloatNumberDefinitions
 {
     // Full definition of a floating point representation.
     // Defined outside FloatNumber so it's not dependent on FloatNumber's template parameters.
@@ -32,7 +35,7 @@ namespace FloatNumberDetails
         bool HasInfinity,
         bool HasNan
     >
-    struct FloatDefinition
+    struct Details
     {
         // The warning is bogus, since the shift result is not actually used in such a case.
     #ifdef _MSC_VER
@@ -79,15 +82,19 @@ namespace FloatNumberDetails
     #ifdef _MSC_VER
         #pragma warning(pop)
     #endif
-    }; // FloatDefinition
+    }; // Details
 
-    using Float8f3e4s1Definition    = FloatDefinition<uint8_t, 3, 4, true, true, false, true>; // No infinity and one NaN representation (S1111.111).
-    using Float8f2e5s1Definition    = FloatDefinition<uint8_t, 2, 5, true, true, true, true>;
-    using Float16Definition         = FloatDefinition<uint32_t, 10, 5, true, true, true, true>;
-    using Float32Definition         = FloatDefinition<uint32_t, 23, 8, true, true, true, true>;
-    using Float64Definition         = FloatDefinition<uint64_t, 52, 11, true, true, true, true>;
-    using Float16f10e5s1Definition  = FloatDefinition<uint16_t, 10, 5, true, true, true, true>;
-    // using Float128Definition = FloatDefinition<uint128_t, 112, 15, true, true, true>; Most compilers lack a uint128_t.
+    using Float8f3e4s1      = Details<uint8_t,  3, 4,   true, true, false, true>;  // No infinity and one NaN representation (S1111.111).
+    using Float8f2e5s1      = Details<uint8_t,  2, 5,   true, true, true,  true>;
+    using Float16           = Details<uint32_t, 10, 5,  true, true, true,  true>; // https://en.wikipedia.org/wiki/Half-precision_floating-point_format
+    using Float32           = Details<uint32_t, 23, 8,  true, true, true,  true>;
+    using Float64           = Details<uint64_t, 52, 11, true, true, true,  true>;
+    using Float16f10e5s1    = Details<uint16_t, 10, 5,  true, true, true,  true>; // "Brain" float https://en.wikipedia.org/wiki/Bfloat16_floating-point_format
+    using Float24f15e8s1    = Details<uint24_t, 15, 8,  true, true, true,  true>; // Pixar PXR24 https://www.openexr.com/documentation/TechnicalIntroduction.pdf, https://en.wikipedia.org/w/index.php?title=Bfloat16_floating-point_format&oldid=1028845625#bfloat16_floating-point_format
+    using Float24f16e7s1    = Details<uint24_t, 16, 7,  true, true, true,  true>; // AMD Radeon R300 and R420 https://en.wikipedia.org/wiki/Minifloat, https://developer.nvidia.com/gpugems/GPUGems2/gpugems2_chapter32.html
+    #if defined(UINT128MAX) || __SIZEOF_INT128__ //  https://stackoverflow.com/questions/18531782/how-to-know-if-uint128-t-is-defined
+        using Float128      = Details<uint128_t, 112, 15, true, true, true>; // Most compilers lack a uint128_t.
+    #endif
 
     // Minihelper shifts left if positive (right if negative).
     template <typename T>
@@ -161,7 +168,7 @@ namespace FloatNumberDetails
         }
     }
 
-} // namespace FloatNumberDetails
+} // namespace FloatNumberDefinitions
 
 
 // Generic FloatNumber type.
@@ -191,7 +198,7 @@ template <
 struct FloatNumber
 {
     using Self = FloatNumber<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity, HasNan>;
-    using SelfDefinition = FloatNumberDetails::FloatDefinition<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity, HasNan>;
+    using SelfDefinition = FloatNumberDefinitions::Details<BaseIntegerType, FractionBitCount, ExponentBitCount, HasSign, HasSubnormals, HasInfinity, HasNan>;
 
     BaseIntegerType value;
 
@@ -201,12 +208,12 @@ struct FloatNumber
 
     constexpr FloatNumber(float floatValue) noexcept
     {
-        value = FloatNumberDetails::ConvertRawFloatType<FloatNumberDetails::Float32Definition, SelfDefinition>(reinterpret_cast<uint32_t&>(floatValue));
+        value = FloatNumberDefinitions::ConvertRawFloatType<FloatNumberDefinitions::Float32, SelfDefinition>(reinterpret_cast<uint32_t&>(floatValue));
     }
 
     constexpr FloatNumber(double floatValue) noexcept
     {
-        value = FloatNumberDetails::ConvertRawFloatType<FloatNumberDetails::Float64Definition, SelfDefinition>(reinterpret_cast<uint64_t&>(floatValue));
+        value = FloatNumberDefinitions::ConvertRawFloatType<FloatNumberDefinitions::Float64, SelfDefinition>(reinterpret_cast<uint64_t&>(floatValue));
     }
 
     constexpr FloatNumber& operator =(const FloatNumber&) noexcept = default;
@@ -226,14 +233,14 @@ struct FloatNumber
     constexpr operator float() const noexcept
     {
         float floatValue;
-        reinterpret_cast<uint32_t&>(floatValue) = FloatNumberDetails::ConvertRawFloatType<SelfDefinition, FloatNumberDetails::Float32Definition>(value);
+        reinterpret_cast<uint32_t&>(floatValue) = FloatNumberDefinitions::ConvertRawFloatType<SelfDefinition, FloatNumberDefinitions::Float32>(value);
         return floatValue;
     }
 
     constexpr operator double() const noexcept
     {
         double floatValue;
-        reinterpret_cast<uint64_t&>(floatValue) = FloatNumberDetails::ConvertRawFloatType<SelfDefinition, FloatNumberDetails::Float64Definition>(value);
+        reinterpret_cast<uint64_t&>(floatValue) = FloatNumberDefinitions::ConvertRawFloatType<SelfDefinition, FloatNumberDefinitions::Float64>(value);
         return floatValue;
     }
 
