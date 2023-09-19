@@ -84,8 +84,8 @@ namespace FloatNumberDefinitions
     #endif
     }; // Details
 
-    using Float8f3e4s1      = Details<uint8_t,  3, 4,   true, true, false, true>;  // No infinity and one NaN representation (S1111.111).
-    using Float8f2e5s1      = Details<uint8_t,  2, 5,   true, true, true,  true>;
+    using Float8f3e4s1      = Details<uint8_t,  3, 4,   true, true, false, true>; // No infinity and one NaN representation (S1111.111). FP8 (E4M3) "FP8 Formats for Deep Learning" https://arxiv.org/abs/2209.05433, https://en.wikipedia.org/wiki/Floating-point_arithmetic#Other_notable_floating-point_formats, https://onnx.ai/onnx/technical/float8.html 2023-04-27
+    using Float8f2e5s1      = Details<uint8_t,  2, 5,   true, true, true,  true>; // FP8 (E5M2) "8-bit Numerical Formats for Deep Neural Networks 2022-10-24" https://arxiv.org/abs/2206.02915,  https://en.wikipedia.org/wiki/Floating-point_arithmetic#Other_notable_floating-point_formats, https://onnx.ai/onnx/technical/float8.html 2023-04-27
     using Float16           = Details<uint32_t, 10, 5,  true, true, true,  true>; // https://en.wikipedia.org/wiki/Half-precision_floating-point_format
     using Float32           = Details<uint32_t, 23, 8,  true, true, true,  true>;
     using Float64           = Details<uint64_t, 52, 11, true, true, true,  true>;
