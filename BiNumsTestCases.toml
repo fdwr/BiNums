@@ -36,3 +36,28 @@ Operands to add:
 Result from add:
        float32 8 (0x41000000)
 '''
+
+["Round to nearest evens"]
+Input = 'add float32 15.5 8388608.0 -8388608.0 add float32 14.5 8388608.0 -8388608.0  add float32 15.5 8388608.0 -8388608.0'
+Output = '''
+Operands to add:
+       float32 15.5 (0x41780000)
+       float32 8388608 (0x4B000000)
+       float32 -8388608 (0xCB000000)
+Result from add:
+       float32 16 (0x41800000)
+
+Operands to add:
+       float32 14.5 (0x41680000)
+       float32 8388608 (0x4B000000)
+       float32 -8388608 (0xCB000000)
+Result from add:
+       float32 14 (0x41600000)
+
+Operands to add:
+       float32 15.5 (0x41780000)
+       float32 8388608 (0x4B000000)
+       float32 -8388608 (0xCB000000)
+Result from add:
+       float32 16 (0x41800000)
+'''
