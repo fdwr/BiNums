@@ -66,7 +66,7 @@ inline float16m7e8s1_t& operator -=(float16m7e8s1_t& a, float16m7e8s1_t b) noexc
 inline float16m7e8s1_t& operator *=(float16m7e8s1_t& a, float16m7e8s1_t b) noexcept { return a = (float(a) * float(b)); }
 inline float16m7e8s1_t& operator /=(float16m7e8s1_t& a, float16m7e8s1_t b) noexcept { return a = (float(a) / float(b)); }
 inline float16m7e8s1_t& operator ++(float16m7e8s1_t& a) noexcept { return a = float(a) + 1; }
-inline float16m7e8s1_t& operator --(float16m7e8s1_t& a) noexcept { return a = float(a) + 1; }
+inline float16m7e8s1_t& operator --(float16m7e8s1_t& a) noexcept { return a = float(a) - 1; }
 inline bool operator==(float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) == float(rhs); }
 inline bool operator!=(float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) != float(rhs); }
 inline bool operator< (float16m7e8s1_t lhs, float16m7e8s1_t rhs) noexcept { return float(lhs) <  float(rhs); }
